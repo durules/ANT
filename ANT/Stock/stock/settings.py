@@ -38,9 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'goods.apps.GoodsConfig',
-    'stocks.apps.StocksConfig',
-    'googlecharts',
-    'qsstats'
+    'stocks.apps.StocksConfig'
+
 ]
 
 MIDDLEWARE = [

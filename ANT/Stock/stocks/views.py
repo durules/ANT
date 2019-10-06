@@ -27,5 +27,5 @@ def index(request):
     return render(
         request,
         'index.html',
-        context={'remains_list': result_dict.values(), "remains_count": remains_by_good_dict.__len__()},
+        context={'remains_list': result_dict.values()},
     )
