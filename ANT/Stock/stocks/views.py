@@ -11,11 +11,7 @@ def index(request):
 
     # Отображение остатков каждой тмц
     goods = GdsGood.objects.all()
-    remains = StkRemains.objects.all()
-
-    remains_by_good_dict = {}
-    for remain in remains:
-        remains_by_good_dict[remain.idGood_id] = remain.nQty
+    remains_by_good_dict = StkRemains.get_remains()
 
     result_dict = {}
 
