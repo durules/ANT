@@ -75,10 +75,10 @@ class StkAct(models.Model):
 
     # Накладные
 
-    d_create_date = models.DateTimeField("Дата содания")
-    d_reg_date = models.DateTimeField("Дата проведения")
+    d_create_date = models.DateTimeField("Дата содания", db_index=True)
+    d_reg_date = models.DateTimeField("Дата проведения", null=True)
     n_direction = models.SmallIntegerField("Направление", null=False)
-    s_state = models.CharField("Состояние", max_length=3, choices=s_state_choices)
+    s_state = models.CharField("Состояние", max_length=3, choices=s_state_choices, null=False)
 
     @staticmethod
     def __insert():
@@ -133,8 +133,8 @@ class StkAct(models.Model):
 
         self.s_state = value
 
-    def get_s_state(self):
-        return self.s_state
+    def get_absolute_url(self):
+        return reverse('StkAct-detail', args=[str(self.id)])
 
 
 class StkActDet(models.Model):
