@@ -3,7 +3,19 @@
 {% block title %}<title>Накладные</title>{% endblock %}
 
 {% block content %}
-    <table class="table table-hover table-bordered">
+    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+        <div class="btn-group" role="group">
+            <button id="btnGroupCreate" type="button" class="btn dropdown-toggle btn-default" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Создать
+            </button>
+            <div class="dropdown-menu" aria-labelledby="btnGroupCreate">
+                <a class="dropdown-item" href="#">Приходная накладная</a>
+                <a class="dropdown-item" href="#">Расходная накладная</a>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-hover table-bordered table-sm">
         <thead>
             <tr>
                 <th>Тип</th>
@@ -15,12 +27,11 @@
 
         {% if object_list %}
 
-
             {% for object in object_list %}
-                <tr>
-                    {% if object.n_direction == 1 %}<td class="success">Приходная</td>{% else %}<td>Расходная</td>{% endif %}
-                    <td>{{ object.d_create_date }}</td>
-                    <td {% if object.s_state != "300" %}class="warning"{% endif %}>{{ object.get_s_state_display}}</td>
+                <tr class="grid-row" data-id="{{ object.id }}">
+                    {% if object.n_direction == 1 %}<td class="table-success">Приходная</td>{% else %}<td>Расходная</td>{% endif %}
+                    <td><a href="{{ object.get_absolute_url }}">{{ object.d_create_date }}</a></td>
+                    <td {% if object.s_state != "300" %}class="table-warning"{% endif %}>{{ object.get_s_state_display}}</td>
                 </tr>
             {% endfor %}
 
@@ -28,5 +39,4 @@
 
         </tbody>
     </table>
-
 {% endblock %}

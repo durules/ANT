@@ -134,7 +134,7 @@ class StkAct(models.Model):
         self.s_state = value
 
     def get_absolute_url(self):
-        return reverse('StkAct-detail', args=[str(self.id)])
+        return reverse('stk_acts-detail', args=[str(self.id)])
 
 
 class StkActDet(models.Model):

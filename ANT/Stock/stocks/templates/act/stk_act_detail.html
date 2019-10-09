@@ -1,0 +1,32 @@
+{% extends "base_generic.html" %}
+
+{% block title %}<title>Накладные</title>{% endblock %}
+
+{% block content %}
+    <form action="/your-name/" method="post">
+        {% csrf_token %}
+        {{ form }}
+
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>Тмц</th>
+                    <th>Кол-во</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for det_form in det_form_set %}
+                <tr class="grid-row">
+                {% for det_field in det_form %}
+                    {% if not det_field.is_hidden %}
+                        <td>{{ det_field }}</td>
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <input type="submit" value="Submit" />
+    </form>
+{% endblock %}
