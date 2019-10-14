@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'goods.apps.GoodsConfig',
-    'stocks.apps.StocksConfig'
+    'stocks.apps.StocksConfig',
+    'bootstrap4'
 
 ]
 
