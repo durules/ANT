@@ -1,6 +1,6 @@
 from typing import Dict, Any, Callable, Union
 
-from django.db import models
+from django.db import models, transaction
 
 # ТМЦ
 from django.urls import reverse
@@ -116,25 +116,51 @@ class StkAct(models.Model):
             # Хоть записи и должны быть уникальны, на всякий случай слкадываю
             res_dict[det.id_good_id] = res_dict.get(det.id_good_id, 0) + det.n_qty
 
+        print(res_dict)
         return res_dict
 
     def set_s_state(self, value: str):
-        s_old_state = self.s_state
-
-        if s_old_state == StkAct.STATE_REGISTERING and value == StkAct.STATE_DONE:
-            # Перевод в Выполнен. Обновляем остатки
-            qty_dict: Dict = self.__get_det_qty
-            StkRemains.apply_changes(qty_dict, self.n_direction)
-
-        elif s_old_state == StkAct.STATE_DONE and value == StkAct.STATE_REGISTERING:
-            # Перевод в Оформляется. Откатываем изменения на складе
-            qty_dict = self.__get_det_qty
-            StkRemains.apply_changes(qty_dict, self.n_direction * -1)
-
         self.s_state = value
+        self.set_d_reg_date(datetime.now())
 
     def get_absolute_url(self):
-        return reverse('stk_acts-detail', args=[str(self.id)])
+        return reverse('stk_act-detail', args=[str(self.id)])
+
+    def apply_form_data(self, changed_act_det_array):
+        # применение данных из формы редактирования
+        with transaction.atomic():
+            # блокируем объект
+            if self.id:
+                old_act = StkAct.objects.select_for_update().get(pk = self.id)
+                if old_act.s_state == StkAct.STATE_DONE:
+                    raise AppException("Ошибка сохранения накладной. Накладная находится в состоянии Выполнен")
+
+            self.set_s_state(StkAct.STATE_DONE)
+            self.save()
+
+            for det in changed_act_det_array:
+                det.id_act = self
+                det.save()
+
+            # Обновляем остатки
+            qty_dict: Dict = self.__get_det_qty()
+            StkRemains.apply_changes(qty_dict, self.n_direction)
+
+    @staticmethod
+    def roll_back_state(id):
+        # откат состояния
+        with transaction.atomic():
+            act = StkAct.objects.select_for_update().get(pk=id)
+            if act.s_state == StkAct.STATE_REGISTERING:
+                raise AppException("Ошибка отката накладной. Накладная находится в состоянии Оформляется")
+
+            act.set_s_state(StkAct.STATE_REGISTERING)
+            act.save()
+
+            # Обновляем остатки
+            qty_dict: Dict = act.__get_det_qty()
+            StkRemains.apply_changes(qty_dict, act.n_direction * -1)
+
 
 
 class StkActDet(models.Model):
@@ -142,8 +168,6 @@ class StkActDet(models.Model):
 
     # Накладная
     id_act = models.ForeignKey('stocks.StkAct', on_delete=models.CASCADE, null=False, verbose_name="Накладная")
-    # Номер позиции
-    n_order = models.IntegerField("Номер")
     # ТМЦ
     id_good = models.ForeignKey('goods.GdsGood', on_delete=models.PROTECT, null=False, verbose_name="Тмц")
     # Количество
