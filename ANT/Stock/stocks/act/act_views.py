@@ -1,5 +1,6 @@
 import json
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import ModelForm, formset_factory, BaseModelFormSet, modelformset_factory, HiddenInput, forms, \
     BaseInlineFormSet, inlineformset_factory
@@ -25,22 +26,26 @@ class StkActListView(LoginRequiredMixin, generic.ListView):
         return StkAct.objects.all().order_by("-d_create_date")
 
 
+@login_required
 def insert_in_act(request):
     act = StkAct.inset_in_act()
     return stk_act_detail_by_instance(request, act)
 
 
+@login_required
 def insert_out_act(request):
     act = StkAct.inset_out_act()
     return stk_act_detail_by_instance(request, act)
 
 
+@login_required
 def stk_act_edit(request, pk):
     # редактирование принятой накладной
     StkAct.roll_back_state(pk)
     return HttpResponseRedirect(reverse('stk_act-detail', args=[str(pk)]))
 
 
+@login_required
 def stk_act_detail_by_instance(request, act):
     # редактирование накладной по переданному экземпляру объекта
     if request.method == 'POST':
@@ -52,7 +57,7 @@ def stk_act_detail_by_instance(request, act):
             act_det_array = act_det_form_set.save(False)
 
             # применение данных
-            act_new.apply_form_data(act_det_array)
+            act_new.apply_form_data(act_det_array, act_det_form_set.deleted_objects)
 
             return HttpResponseRedirect(reverse('stk_acts'))
         else:
@@ -63,6 +68,8 @@ def stk_act_detail_by_instance(request, act):
         det_form_set = det_form_set_class(instance=act, prefix='det')
         return render(request, 'act/stk_act_detail.html', {'form': form, 'det_form_set': det_form_set})
 
+
+@login_required
 def stk_act_detail(request, pk):
     # редактирование на кладной в состоянии оформляется
     act = StkAct.objects.get(pk=pk)

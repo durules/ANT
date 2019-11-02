@@ -23,10 +23,11 @@ class StkRemains(models.Model):
     def get_absolute_url(self):
         return reverse('StkRemains-detail', args=[str(self.id)])
 
-    # Применение изменений в регистр остатков
-    # n_direction - принимает значения (1 - добавить количества, -1 - удалить количества)
     @staticmethod
     def apply_changes(remains_dict, n_direction):
+        # Применение изменений в регистр остатков
+        # n_direction - принимает значения (1 - добавить количества, -1 - удалить количества)
+
         remains_current_dict = StkRemains.get_remains_ids()
         for dict_key in remains_dict:
             id_good = dict_key
@@ -36,7 +37,7 @@ class StkRemains(models.Model):
                 obj.nQty = n_qty * n_direction
                 obj.save()
             else:
-                obj = StkRemains.objects.get(pk=remains_current_dict[id_good])
+                obj = StkRemains.objects.select_for_update().get(pk=remains_current_dict[id_good])
                 obj.nQty = obj.nQty + n_qty * n_direction
                 obj.save()
 
@@ -126,7 +127,7 @@ class StkAct(models.Model):
     def get_absolute_url(self):
         return reverse('stk_act-detail', args=[str(self.id)])
 
-    def apply_form_data(self, changed_act_det_array):
+    def apply_form_data(self, changed_act_det_array, deleted_act_det_array):
         # применение данных из формы редактирования
         with transaction.atomic():
             # блокируем объект
@@ -141,6 +142,9 @@ class StkAct(models.Model):
             for det in changed_act_det_array:
                 det.id_act = self
                 det.save()
+
+            for det in deleted_act_det_array:
+                det.delete()
 
             # Обновляем остатки
             qty_dict: Dict = self.__get_det_qty()
