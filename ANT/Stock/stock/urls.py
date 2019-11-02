@@ -28,4 +28,5 @@ urlpatterns = [
     path('stock/', include('stocks.urls')),
     #static(settings.STATIC_URL, document_root=settings.STATIC_ROOT),
     path('', RedirectView.as_view(url='/stock/', permanent=True)),
+    path('accounts/', include('django.contrib.auth.urls')),
 ]

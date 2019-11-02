@@ -1,5 +1,6 @@
 import json
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import ModelForm, formset_factory, BaseModelFormSet, modelformset_factory, HiddenInput, forms, \
     BaseInlineFormSet, inlineformset_factory
 from django.forms.models import ModelFormMetaclass
@@ -14,7 +15,8 @@ from stocks.models import StkAct, StkActDet
 
 n_gds_count = GdsGood.objects.count()
 
-class StkActListView(generic.ListView):
+
+class StkActListView(LoginRequiredMixin, generic.ListView):
     model = StkAct
     template_name = 'act/stk_act_list.html'
     paginate_by = 100
@@ -108,6 +110,6 @@ det_form_set_class = inlineformset_factory(
             StkActDet,
             fields=['id_good', 'n_qty'],
             max_num=n_gds_count,
-            extra= n_gds_count,
+            extra=n_gds_count,
             formset=StkActDetFormSet
         )

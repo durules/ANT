@@ -161,6 +161,17 @@ class StkAct(models.Model):
             qty_dict: Dict = act.__get_det_qty()
             StkRemains.apply_changes(qty_dict, act.n_direction * -1)
 
+    def __str__(self):
+        if self.n_direction == 1:
+            s_type = "Приходная"
+        else:
+            s_type = "Расходная"
+
+        return s_type + " накладная от " + self.d_create_date.strftime('%d.%m.%Y %H:%M')
+
+    def get_head_line(self):
+        return self.__str__()
+
 
 
 class StkActDet(models.Model):

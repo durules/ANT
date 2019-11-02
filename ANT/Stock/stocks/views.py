@@ -1,9 +1,11 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 from goods.models import GdsGood
 from stocks.models import StkRemains
 
 
+@login_required
 def index(request):
     """
     Функция отображения для домашней страницы сайта.

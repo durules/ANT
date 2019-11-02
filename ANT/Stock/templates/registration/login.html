@@ -1,0 +1,36 @@
+{% extends "base_generic.html" %}
+{% load bootstrap4 %}
+{% block title %}<title>Авторизация</title>{% endblock %}
+{% block body %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-4">
+            </div>
+
+            <div class="col-4">
+                <div class="card border-default">
+                    <div>
+                        <div class="card-body">
+                            {% if form.errors %}
+                              <p class="text-danger">Неверное имя пользователя или пароль</p>
+                            {% endif %}
+
+                            <form method="post" action="{% url 'login' %}">
+                            {% csrf_token %}
+                            {% bootstrap_field form.username%}
+                            {% bootstrap_field form.password%}
+
+
+                            <input type="submit" value="Войти" />
+                            <input type="hidden" name="next" value="{{ next }}" />
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+            </div>
+        </div>
+    </div>
+{% endblock %}
