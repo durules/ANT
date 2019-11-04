@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'goods.apps.GoodsConfig',
     'stocks.apps.StocksConfig',
+    'mnf.apps.MnfConfig',
     'bootstrap4'
 
 ]

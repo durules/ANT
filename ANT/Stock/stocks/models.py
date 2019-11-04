@@ -2,7 +2,6 @@ from typing import Dict, Any, Callable, Union
 
 from django.db import models, transaction
 
-# ТМЦ
 from django.urls import reverse
 from django.utils.datetime_safe import datetime
 
@@ -10,12 +9,19 @@ from stock.app_exception import AppException
 
 
 class StkRemains(models.Model):
-    # Остатки товаров
+    """Остатки товаров.
+
+    Изменение остатков производятся только через накладные.
+    У накладной есть поле idSrcDoc, которое указывает на документ, создавший эту накладную."""
 
     # ТМЦ
     idGood = models.OneToOneField('goods.GdsGood', on_delete=models.CASCADE, null=False, verbose_name="Тмц")
     # Количество
     nQty = models.BigIntegerField("Количество")
+
+    class Meta:
+        verbose_name = "Остатки"
+        verbose_name_plural = "Остатки"
 
     def __str__(self):
         return str(self.id)
@@ -69,17 +75,20 @@ class StkRemains(models.Model):
 
 
 class StkAct(models.Model):
+    """Накладные"""
     STATE_REGISTERING = "100"
     STATE_DONE = "300"
 
     s_state_choices = ((STATE_REGISTERING, "Оформляется"), (STATE_DONE, "Выполнен"))
 
-    # Накладные
-
     d_create_date = models.DateTimeField("Дата содания", db_index=True)
     d_reg_date = models.DateTimeField("Дата проведения", null=True)
     n_direction = models.SmallIntegerField("Направление", null=False)
     s_state = models.CharField("Состояние", max_length=3, choices=s_state_choices, null=False)
+
+    class Meta:
+        verbose_name = "Накладная"
+        verbose_name_plural = "Накладные"
 
     @staticmethod
     def __insert():
@@ -177,7 +186,6 @@ class StkAct(models.Model):
         return self.__str__()
 
 
-
 class StkActDet(models.Model):
     # Позиции накладной
 
@@ -187,6 +195,10 @@ class StkActDet(models.Model):
     id_good = models.ForeignKey('goods.GdsGood', on_delete=models.PROTECT, null=False, verbose_name="Тмц")
     # Количество
     n_qty = models.BigIntegerField("Количество")
+
+    class Meta:
+        verbose_name = "Позиция накладной"
+        verbose_name_plural = "Позиции накладной"
 
     @staticmethod
     def insert(id_act, id_good):
