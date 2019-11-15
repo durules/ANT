@@ -85,6 +85,7 @@ class StkAct(models.Model):
     d_reg_date = models.DateTimeField("Дата проведения", null=True)
     n_direction = models.SmallIntegerField("Направление", null=False)
     s_state = models.CharField("Состояние", max_length=3, choices=s_state_choices, null=False)
+    s_desc = models.TextField("Описание", null=True, blank=True)
 
     class Meta:
         verbose_name = "Накладная"
