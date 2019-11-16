@@ -14,7 +14,11 @@
                 <form action="{% if form.instance.s_state == "300" %}{% url "stk_act_edit" form.instance.id %}{% endif %}" method="post" class="form">
                     {% csrf_token %}
                     <p class="card-text">Состояние: {{ form.instance.get_s_state_display }}</p>
-                    {% bootstrap_form form %}
+                    {% if form.instance.s_state == "300" %}
+                        <p class="card-text">Описание: {% if form.instance.s_desc is not None %}{{ form.instance.s_desc}}{% endif %}</p>
+                    {% else %}
+                        {% bootstrap_form form %}
+                    {% endif %}
 
                     <div class="card-header">Позиции</div>
                         <table class="table table-sm">

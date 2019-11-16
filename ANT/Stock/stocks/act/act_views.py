@@ -3,7 +3,7 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import ModelForm, formset_factory, BaseModelFormSet, modelformset_factory, HiddenInput, forms, \
-    BaseInlineFormSet, inlineformset_factory
+    BaseInlineFormSet, inlineformset_factory, Textarea
 from django.forms.models import ModelFormMetaclass
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -79,8 +79,12 @@ def stk_act_detail(request, pk):
 class StkActForm(ModelForm):
     class Meta:
         model = StkAct
-        fields = ['s_state', 'n_direction']
-        widgets = {'n_direction': HiddenInput(), 's_state': HiddenInput()}
+        fields = ['s_state', 'n_direction', 's_desc']
+        widgets = {
+            'n_direction': HiddenInput(),
+            's_state': HiddenInput(),
+            's_desc': Textarea(attrs={'rows': 4}),
+        }
 
 
 class StkActDetFormSet(BaseInlineFormSet):
