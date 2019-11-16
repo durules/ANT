@@ -19,7 +19,7 @@ n_gds_count = GdsGood.objects.count()
 
 class StkActListView(LoginRequiredMixin, generic.ListView):
     model = StkAct
-    template_name = 'act/stk_act_list.html'
+    template_name = 'stocks/act/stk_act_list.html'
     paginate_by = 100
 
     def get_queryset(self):
@@ -61,12 +61,12 @@ def stk_act_detail_by_instance(request, act):
 
             return HttpResponseRedirect(reverse('stk_acts'))
         else:
-            return render(request, 'act/stk_act_detail.html', {'form': act_form, 'det_form_set': act_det_form_set})
+            return render(request, 'stocks/act/stk_act_detail.html', {'form': act_form, 'det_form_set': act_det_form_set})
     else:
         form = StkActForm(instance=act, prefix='act')
 
         det_form_set = det_form_set_class(instance=act, prefix='det')
-        return render(request, 'act/stk_act_detail.html', {'form': form, 'det_form_set': det_form_set})
+        return render(request, 'stocks/act/stk_act_detail.html', {'form': form, 'det_form_set': det_form_set})
 
 
 @login_required
