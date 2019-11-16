@@ -1,14 +1,14 @@
 from django.db import models, transaction
 from django.urls import reverse
+from django.utils.timezone import localdate, localtime
 
 from goods.models import GdsGood
 from mnf.item.itemModels import MnfItemDet
 from mnf.material.materialModels import MnfMaterial
-from django.utils.datetime_safe import datetime
+from django.utils import timezone
 
 from stock.app_exception import AppException
 from stocks.models import StkAct, StkActDet
-
 
 class MnfShiftResult(models.Model):
     """
@@ -23,7 +23,7 @@ class MnfShiftResult(models.Model):
     s_state_choices = ((STATE_REGISTERING, "Оформляется"), (STATE_DONE, "Выполнен"))
 
     d_create_date = models.DateTimeField("Дата содания", db_index=True)
-    d_reg_date = models.DateTimeField("Дата проведения", null=True)
+    # d_reg_date = models.DateTimeField("Дата проведения", null=True)
     s_state = models.CharField("Состояние", max_length=3, choices=s_state_choices, null=False)
     # Ссылка на сформированную накладную
     id_act = models.ForeignKey('stocks.StkAct', on_delete=models.PROTECT, null=True, blank=True, verbose_name="Накладная")
@@ -39,12 +39,12 @@ class MnfShiftResult(models.Model):
         return reverse('mnf_shift_result-detail', args=[str(self.id)])
 
     def get_head_line(self):
-        return "Отчет о выполненной работе от " + self.d_create_date.strftime('%d.%m.%Y %H:%M')
+        return "Отчет о выполненной работе от " + localtime(self.d_create_date).strftime('%d.%m.%Y %H:%M')
 
     @staticmethod
     def insert():
         obj = MnfShiftResult()
-        obj.d_create_date = datetime.now()
+        obj.d_create_date = timezone.now()
         obj.s_state = "100"
         return obj
 

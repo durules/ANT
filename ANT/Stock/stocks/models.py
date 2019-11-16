@@ -3,7 +3,7 @@ from typing import Dict, Any, Callable, Union
 from django.db import models, transaction
 
 from django.urls import reverse
-from django.utils.datetime_safe import datetime
+from django.utils import timezone
 
 from stock.app_exception import AppException
 
@@ -94,7 +94,7 @@ class StkAct(models.Model):
     @staticmethod
     def __insert():
         obj = StkAct()
-        obj.set_d_create_date(datetime.now())
+        obj.set_d_create_date(timezone.now())
         obj.set_s_state("100")
         return obj
 
@@ -110,10 +110,10 @@ class StkAct(models.Model):
         obj.set_n_direction(-1)
         return obj
 
-    def set_d_create_date(self, value: datetime):
+    def set_d_create_date(self, value: timezone):
         self.d_create_date = value
 
-    def set_d_reg_date(self, value: datetime):
+    def set_d_reg_date(self, value: timezone):
         self.d_reg_date = value
 
     def set_n_direction(self, value: int):
@@ -132,7 +132,7 @@ class StkAct(models.Model):
 
     def set_s_state(self, value: str):
         self.s_state = value
-        self.set_d_reg_date(datetime.now())
+        self.set_d_reg_date(timezone.now())
 
     def get_absolute_url(self):
         return reverse('stk_act-detail', args=[str(self.id)])
@@ -232,7 +232,7 @@ class StkActDet(models.Model):
     def set_id_act(self, value: float):
         self.id_act_id = value
 
-    def set_id_good(self, value: datetime):
+    def set_id_good(self, value: timezone):
         self.id_good_id = value
 
     def set_n_qty(self, value: int):
