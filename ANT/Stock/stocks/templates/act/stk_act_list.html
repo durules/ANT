@@ -3,9 +3,9 @@
 {% block title %}<title>Накладные</title>{% endblock %}
 
 {% block content %}
-    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+    <div class="btn-group" role="group" aria-label="Панель инструментов">
         <div class="btn-group" role="group">
-            <button id="btnGroupCreate" type="button" class="btn dropdown-toggle btn-default" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button id="btnGroupCreate" type="button" class="btn dropdown-toggle btn-outline-info" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Создать
             </button>
             <div class="dropdown-menu" aria-labelledby="btnGroupCreate">
@@ -21,6 +21,7 @@
                 <th>Тип</th>
                 <th>Дата</th>
                 <th>Состояние</th>
+                <th>Описание</th>
             </tr>
         </thead>
         <tbody>
@@ -32,6 +33,7 @@
                     {% if object.n_direction == 1 %}<td class="table-success">Приходная</td>{% else %}<td>Расходная</td>{% endif %}
                     <td><a href="{{ object.get_absolute_url }}">{{ object.d_create_date }}</a></td>
                     <td {% if object.s_state != "300" %}class="table-warning"{% endif %}>{{ object.get_s_state_display}}</td>
+                    <td>{% if object.s_desc is not None %}{{ object.s_desc}}{% endif %}</td>
                 </tr>
             {% endfor %}
 

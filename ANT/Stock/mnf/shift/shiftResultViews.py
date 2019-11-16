@@ -32,7 +32,7 @@ class MnfShiftResultListView(LoginRequiredMixin, generic.ListView):
 
 @login_required
 def insert(request):
-    act = MnfShiftResult.inset()
+    act = MnfShiftResult.insert()
     return mnf_shift_result_detail_by_instance(request, act)
 
 
@@ -58,7 +58,12 @@ def mnf_shift_result_detail_by_instance(request, instance):
             materials_det_array = mnf_shift_result_materials_form_set.save(False)
 
             # применение данных
-            shift_result_new.apply_form_data(items_det_array, items_det_array.deleted_objects, materials_det_array, materials_det_array.deleted_objects)
+            shift_result_new.apply_form_data(
+                items_det_array,
+                mnf_shift_result_items_form_set.deleted_objects,
+                materials_det_array,
+                mnf_shift_result_materials_form_set.deleted_objects
+            )
 
             return HttpResponseRedirect(reverse('mnf_shift_results'))
         else:

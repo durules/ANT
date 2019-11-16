@@ -1,0 +1,33 @@
+{% extends "base_generic_content.html" %}
+
+{% block title %}<title>Отчеты о выполненой работе</title>{% endblock %}
+
+{% block content %}
+    <div class="btn-group" role="group" aria-label="Панель интструментов">
+        <a class="btn btn-outline-info" href="{% url "mnf_shift_results_new" %}" role="button">Создать</a>
+    </div>
+
+
+    <table class="table table-hover table-bordered table-sm">
+        <thead>
+            <tr>
+                <th>Наименование</th>
+                <th>Состояние</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        {% if object_list %}
+
+            {% for object in object_list %}
+                <tr class="grid-row" data-id="{{ object.id }}">
+                    <td><a href="{{ object.get_absolute_url }}">{{ object.get_head_line }}</a></td>
+                    <td {% if object.s_state != "300" %}class="table-warning"{% endif %}>{{ object.get_s_state_display}}</td>
+                </tr>
+            {% endfor %}
+
+        {% endif %}
+
+        </tbody>
+    </table>
+{% endblock %}

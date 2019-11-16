@@ -141,12 +141,11 @@ class StkAct(models.Model):
         # применение данных из формы редактирования
         with transaction.atomic():
             # блокируем объект
-            if self.id:
+            if self.id is not None:
                 old_act = StkAct.objects.select_for_update().get(pk = self.id)
                 if old_act.s_state == StkAct.STATE_DONE:
                     raise AppException("Ошибка сохранения накладной. Накладная находится в состоянии Выполнен")
 
-            self.set_s_state(StkAct.STATE_DONE)
             self.save()
 
             for det in changed_act_det_array:
@@ -156,10 +155,9 @@ class StkAct(models.Model):
             for det in deleted_act_det_array:
                 det.delete()
 
-            # Обновляем остатки
-            qty_dict: Dict = self.__get_det_qty()
-            StkRemains.apply_changes(qty_dict, self.n_direction)
+            StkAct.apply_done_state(self.id)
 
+    # Откат состояния
     @staticmethod
     def roll_back_state(id):
         # откат состояния
@@ -174,6 +172,19 @@ class StkAct(models.Model):
             # Обновляем остатки
             qty_dict: Dict = act.__get_det_qty()
             StkRemains.apply_changes(qty_dict, act.n_direction * -1)
+
+    # Применение состояния
+    @staticmethod
+    def apply_done_state(id):
+        act = StkAct.objects.select_for_update().get(pk=id)
+        # Обновляем остатки
+
+        qty_dict: Dict = act.__get_det_qty()
+        StkRemains.apply_changes(qty_dict, act.n_direction)
+
+        act.set_s_state(StkAct.STATE_DONE)
+
+        act.save()
 
     def __str__(self):
         if self.n_direction == 1:
