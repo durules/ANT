@@ -28,6 +28,8 @@ urlpatterns = [
     path('stock/', include('stocks.urls')),
     path('mnf/', include('mnf.urls')),
     #static(settings.STATIC_URL, document_root=settings.STATIC_ROOT),
-    path('', RedirectView.as_view(url='/stock/', permanent=True)),
+    path('', RedirectView.as_view(url='/mnf/', permanent=True)),
+    # старая главная страница
+    path('stock/', RedirectView.as_view(url='/mnf/', permanent=True)),
     path('accounts/', include('django.contrib.auth.urls')),
 ]

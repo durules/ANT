@@ -1,44 +1,61 @@
 {% extends "base_generic_content.html" %}
 
 {% block head_ext %}
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-
-      google.charts.load('current', {'packages':['corechart']});
-
-      google.charts.setOnLoadCallback(drawChart);
-
-      function drawChart() {
-
-        // Create the data table.
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Тмц');
-        data.addColumn('number', 'Кол-во');
-        data.addRows([
-          {% for good, qty in remains_list %}
-            ['{{ good }}', {{ qty }}],
-          {% endfor %}
-        ]);
-
-
-        // Set chart options
-        var options = {
-            width: 600,
-            height: 400,
-            bar: {groupWidth: "95%"},
-            legend: { position: "none" },
-            fontSize: 16,
-          };
-
-        // Instantiate and draw our chart, passing in some options.
-        var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
-        chart.draw(data, options);
-      }
-    </script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
 {% endblock %}
 
 {% block content %}
 <h1>Остатки товаров</h1>
-    <div id="chart_div"></div>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-11 ">
+            <canvas id="bar-chart" height="{{ canvas_height }}"></canvas>
+        </div>
+    </div>
+</div>
+
+<script >
+    Chart.defaults.global.defaultFontColor = 'black';
+    Chart.defaults.global.defaultFontSize = 16;
+
+    new Chart(document.getElementById("bar-chart"), {
+        type: 'horizontalBar',
+        data: {
+          labels: [
+          {% for s_caption, n_qty, id_level in remains_list %}
+            "{{ s_caption }}",
+          {% endfor %}
+          ],
+          datasets: [
+            {
+              label: "Материал",
+              backgroundColor: [
+              {% for s_caption, n_qty, id_level in remains_list %}
+                {% if id_level is not None %}
+                  "{{ id_level.s_color }}",
+                {% else %}
+                  "#3e95cd",
+                {% endif %}
+              {% endfor %}
+              ],
+              data: [
+             {% for s_caption, n_qty, id_level in remains_list %}
+                "{{ n_qty }}",
+              {% endfor %}
+              ]
+            }
+          ]
+        },
+        options: {
+          legend: { display: false },
+          title: {
+            display: false,
+          },
+          animation: {
+            duration: 0
+          },
+        }
+});
+
+</script>
 {% endblock %}

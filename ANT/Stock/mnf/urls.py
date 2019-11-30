@@ -1,8 +1,8 @@
 from django.urls import path
+from django.views.generic import RedirectView
 
+from mnf import views
 from mnf.shift import shiftResultViews
-from stocks import views
-from stocks.act import act_views
 
 urlpatterns = [
     path('', views.index, name='index'),
