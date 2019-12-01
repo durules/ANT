@@ -127,7 +127,6 @@ class StkAct(models.Model):
             # Хоть записи и должны быть уникальны, на всякий случай слкадываю
             res_dict[det.id_good_id] = res_dict.get(det.id_good_id, 0) + det.n_qty
 
-        print(res_dict)
         return res_dict
 
     def set_s_state(self, value: str):

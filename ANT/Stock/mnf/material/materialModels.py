@@ -36,9 +36,6 @@ class MnfMaterial(models.Model):
         # чтобы обновилось поле в таблице
         self.id_good = gds
 
-        print (self.id_good)
-        print(self.id_good_id)
-
     def save(self, *args, **kwargs):
         self.__sync_with_good()
         super(MnfMaterial, self).save(*args, **kwargs)

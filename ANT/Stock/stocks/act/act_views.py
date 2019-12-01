@@ -101,7 +101,6 @@ class StkActDetFormSet(BaseInlineFormSet):
                 if id_good:
                     # проверка на ункальность ТМЦ
                     if id_good in id_goods:
-                        print('Тмц в позициях должены быть уникальны')
                         raise forms.ValidationError("Тмц в позициях должены быть уникальны")
 
                     id_goods.append(id_good)
@@ -109,10 +108,8 @@ class StkActDetFormSet(BaseInlineFormSet):
                     # проверка, что количество неотрицательно
                     if 'n_qty' in form.cleaned_data:
                         if form.cleaned_data['n_qty'] < 0:
-                            print('Количество должно быть больше 0')
                             raise forms.ValidationError("Количество должно быть больше 0")
                     else:
-                        print('Не указано количество')
                         raise forms.ValidationError("Не указано количество")
 
 
