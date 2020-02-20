@@ -64,16 +64,19 @@ class MnfShiftResult(models.Model):
         # Формирование списка ТМЦ для накладной
         self_mat_dict = {}
 
+        def add_qty(id_item, n_qty):
+            if id_item in self_mat_dict:
+                self_mat_dict[id_item] = self_mat_dict[id_item] + n_qty
+            else:
+                self_mat_dict[id_item] = n_qty
+
         # конечно тут бы через джойны, но как-то не нашел, чтобы orm там могла
         for shift_result_item in MnfShiftResultItems.objects.filter(id_shift_result = self):
             for material in MnfItemDet.objects.filter(id_item=shift_result_item.id_item):
-                self_mat_dict[material.id_material_id] = material.n_qty * shift_result_item.n_qty
+                add_qty(material.id_material_id, material.n_qty * shift_result_item.n_qty)
 
         for shift_result_material in MnfShiftResultMaterials.objects.filter(id_shift_result = self):
-            if shift_result_material.id_material_id in self_mat_dict:
-                self_mat_dict[shift_result_material.id_material_id] = self_mat_dict[shift_result_material.id_material_id] + shift_result_material.n_qty
-            else:
-                self_mat_dict[shift_result_material.id_material_id] = shift_result_material.n_qty
+            add_qty(shift_result_material.id_material_id, shift_result_material.n_qty)
 
         # определение ТМЦ из отчета
         self_gds_dict = {}
