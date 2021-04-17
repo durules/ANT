@@ -27,10 +27,10 @@
                     </thead>
                     <tbody>
 
-                    {% for s_caption, n_qty, id_level in remains_list %}
+                    {% for s_caption, n_qty, id_color in remains_list %}
                        <tr class="grid-row">
                          <td>{{ s_caption }}</td>
-                         <td {% if id_level is not None %} style = "background-color: {{ id_level.s_color }};" {% endif %}>{{ n_qty }}</td>
+                         <td {% if id_color is not None %} style = "background-color: {{ id_color.s_color }};" {% endif %}>{{ n_qty }}</td>
                        </tr>
                     {% endfor %}
                     </tbody>

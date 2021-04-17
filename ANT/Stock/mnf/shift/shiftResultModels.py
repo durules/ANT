@@ -4,7 +4,6 @@ from django.utils.timezone import localdate, localtime
 
 from goods.models import GdsGood
 from mnf.item.itemModels import MnfItemDet
-from mnf.material.materialModels import MnfMaterial
 from django.utils import timezone
 
 from stock.app_exception import AppException
@@ -62,27 +61,21 @@ class MnfShiftResult(models.Model):
             raise AppException("Ошибка синхронизации с накладной. Накладная в неверном состоянии")
 
         # Формирование списка ТМЦ для накладной
-        self_mat_dict = {}
+        self_gds_dict = {}
 
-        def add_qty(id_item, n_qty):
-            if id_item in self_mat_dict:
-                self_mat_dict[id_item] = self_mat_dict[id_item] + n_qty
+        def add_qty(id_good, n_qty):
+            if id_good in self_gds_dict:
+                self_gds_dict[id_good] = self_gds_dict[id_good] + n_qty
             else:
-                self_mat_dict[id_item] = n_qty
+                self_gds_dict[id_good] = n_qty
 
         # конечно тут бы через джойны, но как-то не нашел, чтобы orm там могла
         for shift_result_item in MnfShiftResultItems.objects.filter(id_shift_result = self):
-            for material in MnfItemDet.objects.filter(id_item=shift_result_item.id_item):
-                add_qty(material.id_material_id, material.n_qty * shift_result_item.n_qty)
+            for item_det in MnfItemDet.objects.filter(id_item=shift_result_item.id_item):
+                add_qty(item_det.id_good_id, item_det.n_qty * shift_result_item.n_qty)
 
         for shift_result_material in MnfShiftResultMaterials.objects.filter(id_shift_result = self):
-            add_qty(shift_result_material.id_material_id, shift_result_material.n_qty)
-
-        # определение ТМЦ из отчета
-        self_gds_dict = {}
-        for (id_mat) in self_mat_dict:
-            material = MnfMaterial.objects.get(pk=id_mat)
-            self_gds_dict[material.id_good_id] = self_mat_dict[id_mat]
+            add_qty(shift_result_material.id_good_id, shift_result_material.n_qty)
 
         # обновление позиций
         act_gds_dict = {}
@@ -175,10 +168,10 @@ class MnfShiftResultMaterials(models.Model):
     Например брак.
     """
     id_shift_result = models.ForeignKey('MnfShiftResult', on_delete=models.CASCADE, null=False, verbose_name="Отчет о выполненной работе")
-    id_material = models.ForeignKey('MnfMaterial', on_delete=models.PROTECT, null=True, verbose_name="Материал")
+    id_good = models.ForeignKey('goods.GdsGood', on_delete=models.PROTECT, null=True, verbose_name="Тмц")
     n_qty = models.PositiveIntegerField(verbose_name="Количество")
 
     class Meta:
         verbose_name = "Дополнительный материал"
         verbose_name_plural = "Дополнительные материалы"
-        unique_together = [['id_shift_result', 'id_material']]
+        unique_together = [['id_shift_result', 'id_good']]

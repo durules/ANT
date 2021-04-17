@@ -1,0 +1,3 @@
+Восстановить цвета из cor_corLevel_mp
+Восстановить детальную часть объектов производства из mnf_mnfitemdet_tmp
+Восстановить уровни из goods_gds_remainLevel_tmp

@@ -13,12 +13,11 @@ from django.db import models
 
 from goods.models import GdsGood
 from mnf.item.itemModels import MnfItem
-from mnf.material.materialModels import MnfMaterial
 from mnf.shift.shiftResultModels import MnfShiftResult, MnfShiftResultItems, MnfShiftResultMaterials
 from stocks.models import StkAct, StkActDet
 
 n_item_count = MnfItem.objects.count()
-n_material_count = MnfMaterial.objects.count()
+n_good_count = GdsGood.objects.count()
 
 
 class MnfShiftResultListView(LoginRequiredMixin, generic.ListView):
@@ -112,8 +111,8 @@ items_form_set_class = inlineformset_factory(
 materials_form_set_class = inlineformset_factory(
             MnfShiftResult,
             MnfShiftResultMaterials,
-            fields=['id_material', 'n_qty'],
-            max_num=n_material_count,
-            extra=n_material_count,
+            fields=['id_good', 'n_qty'],
+            max_num=n_good_count,
+            extra=n_good_count,
             formset=MnfShiftResultMaterialsFormSet
         )

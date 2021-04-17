@@ -81,8 +81,8 @@
                                 {% for det_form in det_materials_set %}
                                     <tr class="grid-row">
                                     {% if form.instance.s_state == "300" %}
-                                        {% if det_form.instance.id_material %}
-                                            <td>{{ det_form.instance.id_material }}</td>
+                                        {% if det_form.instance.id_good %}
+                                            <td>{{ det_form.instance.id_good }}</td>
                                             <td>{{ det_form.instance.n_qty }}</td>
                                         {% endif %}
                                     {% else %}

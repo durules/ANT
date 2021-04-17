@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
-from mnf.material.materialModels import MnfMaterial
+from goods.models import GdsGood
 from stocks.models import StkRemains
 
 
@@ -12,17 +12,17 @@ def index(request):
     """
 
     # Отображение остатков каждой тмц
-    materials = MnfMaterial.objects.all()
+    goods = GdsGood.objects.all()
 
     remains_by_good_dict = StkRemains.get_remains()
 
     result_dict = {}
 
     remains_count = 0
-    for material in materials:
-        n_qty = remains_by_good_dict.get(material.id_good_id, 0)
-        remains_level = material.get_remains_level(n_qty)
-        result_dict[material.id] = (material.s_caption, n_qty, remains_level)
+    for good in goods:
+        n_qty = remains_by_good_dict.get(good.id, 0)
+        color = good.get_remains_level(n_qty)
+        result_dict[good.id] = (good.sCaption, n_qty, color)
         remains_count = remains_count + 1
 
     # Отрисовка HTML-шаблона index.html с данными внутри

@@ -1,8 +1,6 @@
 from django.db import models
 from django.urls import reverse
 
-from mnf.material.materialModels import MnfMaterial
-
 
 class MnfItem(models.Model):
     """
@@ -28,19 +26,19 @@ class MnfItemDet(models.Model):
     Состав объекта производства.
     """
     id_item = models.ForeignKey('MnfItem', on_delete=models.CASCADE, null=False, verbose_name="Объект производства")
-    id_material = models.ForeignKey('MnfMaterial', on_delete=models.PROTECT, null=True, verbose_name="Материал")
+    id_good = models.ForeignKey('goods.GdsGood', on_delete=models.PROTECT, null=True, verbose_name="Тмц")
     n_qty = models.PositiveIntegerField(verbose_name="Количество", blank=True, null=False)
 
     class Meta:
         verbose_name = "Состав объекта производства"
         verbose_name_plural = "Составы объекта производства"
-        unique_together= [['id_item', 'id_material']]
+        unique_together= [['id_item', 'id_good']]
 
     def __str__(self):
-        if not self.id_material:
+        if not self.id_good:
             return str(self.id)
         else:
-            return self.id_material.s_caption
+            return self.id_good.sCaption
 
     def get_absolute_url(self):
         return reverse('MnfItemDet-detail', args=[str(self.id)])
