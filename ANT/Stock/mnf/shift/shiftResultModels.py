@@ -24,8 +24,10 @@ class MnfShiftResult(models.Model):
     d_create_date = models.DateTimeField("Дата содания", db_index=True)
     # d_reg_date = models.DateTimeField("Дата проведения", null=True)
     s_state = models.CharField("Состояние", max_length=3, choices=s_state_choices, null=False)
-    # Ссылка на сформированную накладную
-    id_act = models.ForeignKey('stocks.StkAct', on_delete=models.PROTECT, null=True, blank=True, verbose_name="Накладная")
+    # Ссылка на сформированную расходную накладную
+    id_act = models.ForeignKey('stocks.StkAct', on_delete=models.PROTECT, null=True, blank=True, verbose_name="Расходная накладная")
+    # Ссылка на сформированную приходную накладную
+    id_act_in = models.ForeignKey('stocks.StkAct', on_delete=models.PROTECT, null=True, blank=True, verbose_name="Приходная накладная", related_name='+')
 
     class Meta:
         verbose_name = "Отчет о выполненной работе"
@@ -49,52 +51,77 @@ class MnfShiftResult(models.Model):
 
     # Синхронизация данных с накладной
     def __sync_with_act(self):
-        act = self.id_act
+        # создание накладных
+        act_out = self.id_act
+        act_in = self.id_act_in
 
-        if act is None:
-            act = StkAct.inset_out_act()
-            act.s_desc = "Сформирована от \"" + self.get_head_line() + "\""
-            act.save()
-            self.id_act = act
+        if act_out is None:
+            act_out = StkAct.inset_out_act()
+            act_out.s_desc = "Сформирована от \"" + self.get_head_line() + "\""
+            act_out.save()
+            self.id_act = act_out
 
-        if act.s_state != StkAct.STATE_REGISTERING:
-            raise AppException("Ошибка синхронизации с накладной. Накладная в неверном состоянии")
+        if act_out.s_state != StkAct.STATE_REGISTERING:
+            raise AppException("Ошибка синхронизации с расходной накладной. Накладная в неверном состоянии")
+
+        if act_in is None:
+            act_in = StkAct.inset_in_act()
+            act_in.s_desc = "Сформирована от \"" + self.get_head_line() + "\""
+            act_in.save()
+            self.id_act_in = act_in
+
+        if act_in.s_state != StkAct.STATE_REGISTERING:
+            raise AppException("Ошибка синхронизации с приходной накладной. Накладная в неверном состоянии")
 
         # Формирование списка ТМЦ для накладной
-        self_gds_dict = {}
+        self_gds_out_dict = {}
+        self_gds_in_dict = {}
 
-        def add_qty(id_good, n_qty):
-            if id_good in self_gds_dict:
-                self_gds_dict[id_good] = self_gds_dict[id_good] + n_qty
+        def add_qty(dict, id_good, n_qty):
+            if id_good in dict:
+                dict[id_good] = dict[id_good] + n_qty
             else:
-                self_gds_dict[id_good] = n_qty
+                dict[id_good] = n_qty
 
-        # конечно тут бы через джойны, но как-то не нашел, чтобы orm там могла
+        def add_out_qty(id_good, n_qty):
+            add_qty(self_gds_out_dict, id_good, n_qty)
+
+        def add_in_qty(id_good, n_qty):
+            add_qty(self_gds_in_dict, id_good, n_qty)
+
         for shift_result_item in MnfShiftResultItems.objects.filter(id_shift_result = self):
+            # приход
+            add_in_qty(shift_result_item.id_item.id_good_id, shift_result_item.n_qty)
+
+            # расход
             for item_det in MnfItemDet.objects.filter(id_item=shift_result_item.id_item):
-                add_qty(item_det.id_good_id, item_det.n_qty * shift_result_item.n_qty)
+                add_out_qty(item_det.id_good_id, item_det.n_qty * shift_result_item.n_qty)
 
         for shift_result_material in MnfShiftResultMaterials.objects.filter(id_shift_result = self):
-            add_qty(shift_result_material.id_good_id, shift_result_material.n_qty)
+            add_out_qty(shift_result_material.id_good_id, shift_result_material.n_qty)
 
         # обновление позиций
-        act_gds_dict = {}
-        for act_det in StkActDet.objects.filter(id_act=act):
-            act_gds_dict[act_det.id_good_id] = act_det.id
+        def sync_act_det(act, dict):
+            act_gds_dict = {}
+            for act_det in StkActDet.objects.filter(id_act=act):
+                act_gds_dict[act_det.id_good_id] = act_det.id
 
-            if act_det.id_good_id in self_gds_dict:
-                act_det.n_qty = self_gds_dict[act_det.id_good_id]
-                act_det.save()
-            else:
-                act_det.delete()
+                if act_det.id_good_id in dict:
+                    act_det.n_qty = dict[act_det.id_good_id]
+                    act_det.save()
+                else:
+                    act_det.delete()
 
-        for (id_good) in self_gds_dict:
-            if id_good not in act_gds_dict:
-                act_det = StkActDet()
-                act_det.id_act = act
-                act_det.id_good_id = id_good
-                act_det.n_qty = self_gds_dict[id_good]
-                act_det.save()
+            for (id_good) in dict:
+                if id_good not in act_gds_dict:
+                    act_det = StkActDet()
+                    act_det.id_act = act
+                    act_det.id_good_id = id_good
+                    act_det.n_qty = dict[id_good]
+                    act_det.save()
+
+        sync_act_det(act_out, self_gds_out_dict)
+        sync_act_det(act_in, self_gds_in_dict)
 
     # применение данных из формы редактирования
     def apply_form_data(self, changed_items_array, deleted_items_array, changed_materials_array, deleted_materials_array):
@@ -126,6 +153,7 @@ class MnfShiftResult(models.Model):
             # синхронизация с накладной
             self.__sync_with_act()
             StkAct.apply_done_state(self.id_act_id)
+            StkAct.apply_done_state(self.id_act_in.id)
 
             self.save()
 
@@ -138,9 +166,12 @@ class MnfShiftResult(models.Model):
                 raise AppException("Ошибка отката отчета. Отчет находится в состоянии Оформляется")
 
             # Откат накладной
-            act = shift_result.id_act
-            if act is not None:
-                StkAct.roll_back_state(act.id)
+            act_out = shift_result.id_act
+            act_in = shift_result.id_act_in
+            if act_out is not None:
+                StkAct.roll_back_state(act_out.id)
+            if act_in is not None:
+                StkAct.roll_back_state(act_in.id)
 
             shift_result.s_state = MnfShiftResult.STATE_REGISTERING
             shift_result.save()
