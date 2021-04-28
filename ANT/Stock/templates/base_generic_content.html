@@ -9,6 +9,7 @@
                         <li><a href="{% url 'index' %}">Главная</a></li>
                         <li><a href="{% url 'mnf_shift_results' %}">Отчеты о выполненой работе</a></li>
                         <li><a href="{% url 'stk_acts' %}">Накладные</a></li>
+                        <li><a href="{% url 'trd_orders' %}">Заказы</a></li>
                         <br>
                         {% if user.is_authenticated %}
                             <li>Пользователь: {{ user.get_username }}</li>

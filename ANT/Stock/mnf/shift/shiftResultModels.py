@@ -9,6 +9,7 @@ from django.utils import timezone
 from stock.app_exception import AppException
 from stocks.models import StkAct, StkActDet
 
+
 class MnfShiftResult(models.Model):
     """
     Результат смены.
@@ -101,27 +102,8 @@ class MnfShiftResult(models.Model):
             add_out_qty(shift_result_material.id_good_id, shift_result_material.n_qty)
 
         # обновление позиций
-        def sync_act_det(act, dict):
-            act_gds_dict = {}
-            for act_det in StkActDet.objects.filter(id_act=act):
-                act_gds_dict[act_det.id_good_id] = act_det.id
-
-                if act_det.id_good_id in dict:
-                    act_det.n_qty = dict[act_det.id_good_id]
-                    act_det.save()
-                else:
-                    act_det.delete()
-
-            for (id_good) in dict:
-                if id_good not in act_gds_dict:
-                    act_det = StkActDet()
-                    act_det.id_act = act
-                    act_det.id_good_id = id_good
-                    act_det.n_qty = dict[id_good]
-                    act_det.save()
-
-        sync_act_det(act_out, self_gds_out_dict)
-        sync_act_det(act_in, self_gds_in_dict)
+        act_out.apply_det_data(self_gds_out_dict)
+        act_in.apply_det_data(self_gds_in_dict)
 
     # применение данных из формы редактирования
     def apply_form_data(self, changed_items_array, deleted_items_array, changed_materials_array, deleted_materials_array):

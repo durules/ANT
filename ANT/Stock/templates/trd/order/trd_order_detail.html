@@ -1,0 +1,117 @@
+{% extends "base_generic_content.html" %}
+{% load bootstrap4 %}
+{% block title %}<title>Заказы</title>{% endblock %}
+
+{% block content %}
+
+
+    <div class="container">
+
+
+        <div class="card">
+            <div class="card-header">{{ form.instance.get_head_line }}</div>
+            <div class="card-body">
+                <form action="" method="post" class="form">
+                    {% csrf_token %}
+
+                    {% bootstrap_field form.id_state %}
+
+                    <ul class="nav nav-tabs" id="tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true">Информация</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="dets-tab" data-toggle="tab" href="#dets" role="tab" aria-controls="dets" aria-selected="false">Позиции</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="desc-tab" data-toggle="tab" href="#desc" role="tab" aria-controls="desc" aria-selected="false">Комментарий</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="state-history-tab" data-toggle="tab" href="#desc" role="tab" aria-controls="state-history" aria-selected="false">История состояний</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                    {% bootstrap_field form.d_reg_date %}
+                                    </div>
+                                    <div class="col-sm-6">
+                                    {% bootstrap_field form.s_reg_num %}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                    {% bootstrap_field form.s_track_num %}
+                                    </div>
+                                    <div class="col-sm-6">
+                                    {% bootstrap_field form.id_delivery_service %}
+                                    </div>
+                                </div>
+                                {% bootstrap_field form.s_receiver %}
+                                {% bootstrap_field form.s_address %}
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="dets" role="tabpanel" aria-labelledby="dets-tab">
+                            <div class="table-wrapper-scroll-y my-custom-scrollbar">
+                                <table class="table table-sm">
+                                    {% if det_form_set.non_form_errors %}
+                                        {% for error in det_form_set.non_form_errors %}
+                                        <p class="card-text text-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {{ det_form_set.management_form }}
+
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Тмц</th>
+                                            <th scope="col">Кол-во</th>
+                                            <th scope="col">Удаление</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for det_form in det_form_set %}
+                                        <tr class="grid-row">
+                                        {% if form.instance.id_state.is_write_off_goods %}
+                                            {% if det_form.instance.id_good %}
+                                                <td>{{ det_form.instance.id_good }}</td>
+                                                <td>{{ det_form.instance.n_qty }}</td>
+                                            {% endif %}
+                                        {% else %}
+                                            {% for det_field in det_form %}
+                                                {% if not det_field.is_hidden %}
+                                                    <td>{% bootstrap_field det_field show_label=False%}</td>
+                                                {% else %}
+                                                    {{ det_field }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="desc" role="tabpanel" aria-labelledby="desc-tab">
+                            {% for field in form %}
+                                {% if not field.is_hidden %}
+                                    {% if field.name == 's_desc' %}
+                                        {% bootstrap_field field %}
+                                    {% endif %}
+                                {% else %}
+                                    {{ field }}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                    <hr>
+                    {% buttons submit='Сохранить' %}{% endbuttons %}
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base_generic_content.html" %}
+
+{% block title %}<title>Заказы</title>{% endblock %}
+
+{% block content %}
+    <div class="btn-group" role="group" aria-label="Панель инструментов">
+        <div class="btn-group" role="group">
+            <button id="btnGroupCreate" type="button" class="btn dropdown-toggle btn-outline-info" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Создать
+            </button>
+            <div class="dropdown-menu" aria-labelledby="btnGroupCreate">
+                {% for trade_system in trade_system_list %}
+                    <a class="dropdown-item" href="{% url "trd_order_new" trade_system.id %}">Заказ из "{{trade_system.s_caption}}"</a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-hover table-bordered table-sm">
+        <thead>
+            <tr>
+                <th>Торговая система</th>
+                <th>Заказ</th>
+                <th>Состояние</th>
+                <th>Описание</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        {% if object_list %}
+
+            {% for object in object_list %}
+                <tr class="grid-row" data-id="{{ object.id }}" {% if object.get_level_by_state is not None %} style = "background-color: {{ object.get_level_by_state.id_color.s_color }};" {% endif %}>
+                    <td>{{ object.id_trade_system}}</td>
+                    <td><a href="{{ object.get_absolute_url }}">{{ object.get_head_line }}</a></td>
+                    <td> {{ object.id_state}}</td>
+                    <td>{% if object.s_desc is not None %}{{ object.s_desc}}{% endif %}</td>
+                </tr>
+            {% endfor %}
+
+        {% endif %}
+
+        </tbody>
+    </table>
+{% endblock %}

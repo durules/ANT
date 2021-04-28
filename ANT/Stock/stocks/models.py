@@ -196,6 +196,27 @@ class StkAct(models.Model):
     def get_head_line(self):
         return self.__str__()
 
+    def apply_det_data(self, dict):
+        # применение данных по позициям акта.
+        # на вход словарь id_good_id -> n_qty
+        act_gds_dict = {}
+        for act_det in StkActDet.objects.filter(id_act=self):
+            act_gds_dict[act_det.id_good_id] = act_det.id
+
+            if act_det.id_good_id in dict:
+                act_det.n_qty = dict[act_det.id_good_id]
+                act_det.save()
+            else:
+                act_det.delete()
+
+        for (id_good) in dict:
+            if id_good not in act_gds_dict:
+                act_det = StkActDet()
+                act_det.id_act = self
+                act_det.id_good_id = id_good
+                act_det.n_qty = dict[id_good]
+                act_det.save()
+
 
 class StkActDet(models.Model):
     # Позиции накладной

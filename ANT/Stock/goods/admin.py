@@ -10,4 +10,5 @@ class GdsGoodRemainsLevelInline(admin.TabularInline):
 class GdsGoodAdmin(admin.ModelAdmin):
     inlines = [GdsGoodRemainsLevelInline]
 
+
 admin.site.register(GdsGood, GdsGoodAdmin)

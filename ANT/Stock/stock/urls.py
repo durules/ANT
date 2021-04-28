@@ -32,4 +32,5 @@ urlpatterns = [
     # старая главная страница
     path('stock/', RedirectView.as_view(url='/mnf/', permanent=True)),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('trd/', include('trd.urls')),
 ]
