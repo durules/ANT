@@ -11,6 +11,8 @@
                         <li><a href="{% url 'stk_acts' %}">Накладные</a></li>
                         <li><a href="{% url 'trd_orders' %}">Заказы</a></li>
                         <br>
+                        <li><a href="/admin">Настройки</a></li>
+                        <br>
                         {% if user.is_authenticated %}
                             <li>Пользователь: {{ user.get_username }}</li>
                             <li><a href="{% url 'logout'%}?next={{request.path}}">Выход</a></li>

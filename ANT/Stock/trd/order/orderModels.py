@@ -23,7 +23,6 @@ class TrdOrderState(CorState):
     def get_start_state():
         return TrdOrderState.objects.order_by('n_order')[0]
 
-    @property
     def is_write_off_goods(self):
         # признак, что в этом состоянии списываются тмц со склада
         if self.n_order is None:
@@ -123,7 +122,12 @@ class TrdOrder(models.Model):
         else:
             trade_system = ""
 
-        return "Заказ" + trade_system + " от " + self.d_reg_date.date().strftime('%d.%m.%Y')
+        if self.s_reg_num is not None:
+            reg_num = " № " + str(self.s_reg_num)
+        else:
+            reg_num = ""
+
+        return "Заказ" + reg_num + trade_system + " от " +  localtime(self.d_reg_date).strftime('%d.%m.%Y')
 
     def set_d_create_date(self, value: timezone):
         self.d_create_date = value
@@ -138,18 +142,19 @@ class TrdOrder(models.Model):
             old_id_state = self.id_state
             old_id_state_id = old_id_state.id
         with transaction.atomic():
-            self.id_state = TrdOrderState(value)
+            self.id_state = TrdOrderState.objects.get(pk=value)
 
             # чтобы история состояний не ругалась, что нет заказа, когда мы его только создаем, и ставим стартовое состояние
             self.save()
             TrdOrderStateHistory.create_item(self.id, old_id_state_id, self.id_state.id, s_user)
-            if old_id_state is not None and old_id_state.is_write_off_goods and not self.id_state.is_write_off_goods:
+            if old_id_state is not None and old_id_state.is_write_off_goods() and not self.id_state.is_write_off_goods():
                 # откатываем накладную
                 if self.id_act_out is not None:
                     StkAct.roll_back_state(self.id_act_out.id)
-            elif (old_id_state is None or not old_id_state.is_write_off_goods) and self.id_state.is_write_off_goods:
+            elif (old_id_state is None or not old_id_state.is_write_off_goods()) and self.id_state.is_write_off_goods():
                 # применяем накладную
                 self.__sync_with_act()
+                StkAct.apply_done_state(self.id_act_out_id)
 
             self.save()
 

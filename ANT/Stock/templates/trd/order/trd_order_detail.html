@@ -27,7 +27,7 @@
                             <a class="nav-link" id="desc-tab" data-toggle="tab" href="#desc" role="tab" aria-controls="desc" aria-selected="false">Комментарий</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="state-history-tab" data-toggle="tab" href="#desc" role="tab" aria-controls="state-history" aria-selected="false">История состояний</a>
+                            <a class="nav-link" id="state-history-tab" data-toggle="tab" href="#state-history" role="tab" aria-controls="state-history" aria-selected="false">История состояний</a>
                         </li>
                     </ul>
                     <div class="tab-content" id="myTabContent">
@@ -77,6 +77,11 @@
                                             {% if det_form.instance.id_good %}
                                                 <td>{{ det_form.instance.id_good }}</td>
                                                 <td>{{ det_form.instance.n_qty }}</td>
+                                                {% for det_field in det_form %}
+                                                    {% if det_field.is_hidden %}
+                                                        {{ det_field }}
+                                                    {% endif %}
+                                                {% endfor %}
                                             {% endif %}
                                         {% else %}
                                             {% for det_field in det_form %}
@@ -103,6 +108,28 @@
                                     {{ field }}
                                 {% endif %}
                             {% endfor %}
+                        </div>
+                        <div class="tab-pane fade" id="state-history" role="tabpanel" aria-labelledby="state-history-tab">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Дата</th>
+                                        <th scope="col">Состояние из</th>
+                                        <th scope="col">Состояние в</th>
+                                        <th scope="col">Пользователь</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for d_date, s_state_from, s_state_to, s_user in state_history_list %}
+                                    <tr class="grid-row">
+                                        <td>{{ d_date }}</td>
+                                        <td>{{ s_state_from }}</td>
+                                        <td>{{ s_state_to }}</td>
+                                        <td>{{ s_user }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 

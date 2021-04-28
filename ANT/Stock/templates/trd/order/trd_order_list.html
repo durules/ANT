@@ -1,5 +1,5 @@
 {% extends "base_generic_content.html" %}
-
+{% load bootstrap4 %}
 {% block title %}<title>Заказы</title>{% endblock %}
 
 {% block content %}
@@ -12,6 +12,36 @@
                 {% for trade_system in trade_system_list %}
                     <a class="dropdown-item" href="{% url "trd_order_new" trade_system.id %}">Заказ из "{{trade_system.s_caption}}"</a>
                 {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div id="accordion">
+        <div class="card">
+            <div class="card-header" id="headingFilter">
+                <button class="btn btn-secondary btn-sm" data-toggle="collapse" data-target="#collapseFilter" aria-expanded="{% if has_filter %}true{% else %}false{% endif %}" aria-controls="collapseFilter">
+                  Фильтр
+                </button>
+            </div>
+            <div id="collapseFilter" class="collapse {% if has_filter %}show{% endif %}" aria-labelledby="headingFilter" data-parent="#accordion">
+                <div class="card-body">
+                    <form method="get" action="" class="form">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                {% bootstrap_field filter_form.flt_d_date_from size='small' %}
+                                </div>
+                                <div class="col-sm-3">
+                                {% bootstrap_field filter_form.flt_d_date_to size='small' %}
+                                </div>
+                                <div class="col-sm-6">
+                                {% bootstrap_field filter_form.flt_id_trade_system size='small' %}
+                                </div>
+                            </div>
+                        </div>
+                        {% bootstrap_button "Применить" button_type="submit" button_class="btn btn-outline-info btn-sm" %}
+                    </form>
+                </div>
             </div>
         </div>
     </div>
