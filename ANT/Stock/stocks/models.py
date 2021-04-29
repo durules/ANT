@@ -5,7 +5,7 @@ from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
 
-from stock.app_exception import AppException
+from cor.exception.app_exception import AppException
 
 
 class StkRemains(models.Model):

@@ -1,0 +1,176 @@
+{% extends "base_generic_content.html" %}
+
+{% block title %}<title>Отчет по заказам</title>{% endblock %}
+
+{% block content %}
+    <div class="btn-group" role="group" aria-label="Панель инструментов">
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8">
+                <div id="accordion">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <span style="font-weight: bold;">Заказ</span>
+                            </div>
+                            <div class="col-sm-2">
+                                 <span style="font-weight: bold;">Состояние</span>
+                            </div>
+                            <div class="col-sm-2">
+                                 <span style="font-weight: bold;">Достаточно готовой продукции</span>
+                            </div>
+                            <div class="col-sm-2">
+                                <span style="font-weight: bold;">Достаточно материалов</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% for order, s_order_color, has_goods, has_materials, id_good_by_order_req_dict, order_det_list in row_list %}
+                    <div class="card">
+                        <div class="card-header" id="heading{{ order.id }}">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <button class="btn btn-outline-dark btn-block" data-toggle="collapse" data-target="#collapse{{ order.id }}" aria-expanded="false" aria-controls="collapse{{ order.id }}"  {% if s_order_color is not None %} style = "background-color: {{ s_order_color }};" {% endif %}>
+                                          {{ order }}
+                                        </button>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        {{ order.id_state }}
+                                    </div>
+                                    <div class="col-sm-2">
+                                        {% if not has_goods %}
+                                            <div class="alert alert-warning" role="alert">
+                                              Нет
+                                            </div>
+                                        {% else %}
+                                            <div class="alert alert-success" role="alert">
+                                              Да
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-sm-2">
+                                        {% if not has_materials %}
+                                            <div class="alert alert-danger" role="alert">
+                                              Нет
+                                            </div>
+                                        {% else %}
+                                            <div class="alert alert-success" role="alert">
+                                              Да
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div id="collapse{{ order.id }}" class="collapse" aria-labelledby="heading{{ order.id }}" data-parent="#accordion">
+                            <div class="card-body">
+                                <a class="btn btn-outline-info btn-sm" href="{{ order.get_absolute_url }}" role="button">Открыть заказ</a>
+                                <hr>
+
+                                <ul class="nav nav-tabs" id="tabs" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="dets-tab" data-toggle="tab" href="#dets" role="tab" aria-controls="dets" aria-selected="true">Состав</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="req-tab" data-toggle="tab" href="#req" role="tab" aria-controls="req" aria-selected="false">Недостающая готовая продукция</a>
+                                    </li>
+                                </ul>
+
+                                <div class="tab-content" id="myTabContent">
+                                    <div class="tab-pane fade show active" id="dets" role="tabpanel" aria-labelledby="dets-tab">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Тмц</th>
+                                                    <th scope="col">Кол-во</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for order_det in order_det_list %}
+                                                <tr class="grid-row">
+                                                    <td>{{ order_det.id_good }}</td>
+                                                    <td>{{ order_det.n_qty }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="tab-pane fade" id="req" role="tabpanel" aria-labelledby="req-tab">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Тмц</th>
+                                                    <th scope="col">Кол-во</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for id_good_req, n_qty_req in id_good_by_order_req_dict.items %}
+                                                <tr class="grid-row">
+                                                    <td>{{ id_good_req }}</td>
+                                                    <td>{{ n_qty_req }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-sm-4">
+                {% if good_req_dict %}
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Недостающая готовая продукция</h5>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Тмц</th>
+                                    <th scope="col">Кол-во</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for id_good_req, n_qty_req in good_req_dict.items %}
+                                <tr class="grid-row">
+                                    <td>{{ id_good_req }}</td>
+                                    <td>{{ n_qty_req }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                {% if mat_req_dict %}
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Недостающие материалы</h5>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Тмц</th>
+                                    <th scope="col">Кол-во</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for id_good_req, n_qty_req in mat_req_dict.items %}
+                                <tr class="grid-row">
+                                    <td>{{ id_good_req }}</td>
+                                    <td>{{ n_qty_req }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

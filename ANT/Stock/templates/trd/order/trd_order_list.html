@@ -13,6 +13,8 @@
                     <a class="dropdown-item" href="{% url "trd_order_new" trade_system.id %}">Заказ из "{{trade_system.s_caption}}"</a>
                 {% endfor %}
             </div>
+            <a class="btn btn-outline-info" href="{% url "trd_order_report" %}" role="button">Отчет по заказам</a>
+
         </div>
     </div>
 
@@ -60,7 +62,7 @@
         {% if object_list %}
 
             {% for object in object_list %}
-                <tr class="grid-row" data-id="{{ object.id }}" {% if object.get_level_by_state is not None %} style = "background-color: {{ object.get_level_by_state.id_color.s_color }};" {% endif %}>
+                <tr class="grid-row" data-id="{{ object.id }}" {% if object.get_level_by_state is not None %} style = "background-color: {{ object.get_level_by_state.get_color }};" {% endif %}>
                     <td>{{ object.id_trade_system}}</td>
                     <td><a href="{{ object.get_absolute_url }}">{{ object.get_head_line }}</a></td>
                     <td> {{ object.id_state}}</td>

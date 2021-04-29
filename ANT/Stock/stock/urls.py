@@ -21,6 +21,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from stock import views
+from stock.trd import OrderReport
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,4 +34,5 @@ urlpatterns = [
     path('stock/', RedirectView.as_view(url='/mnf/', permanent=True)),
     path('accounts/', include('django.contrib.auth.urls')),
     path('trd/', include('trd.urls')),
+    path('order_report/', OrderReport.build_report, name='trd_order_report'),
 ]

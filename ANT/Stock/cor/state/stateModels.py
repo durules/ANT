@@ -1,13 +1,6 @@
-from django.db import models, transaction
-from django.urls import reverse
-from django.utils.timezone import localdate, localtime
-
-from goods.models import GdsGood
-from mnf.item.itemModels import MnfItemDet
+from django.db import models
 from django.utils import timezone
 
-from stock.app_exception import AppException
-from stocks.models import StkAct, StkActDet
 
 
 class CorState(models.Model):

@@ -5,9 +5,8 @@ from cor.state.stateModels import CorState, CorStateHistory
 from django.utils.timezone import localtime
 from django.utils import timezone
 
-from stock.app_exception import AppException
-from stocks.models import StkAct, StkActDet
-from trd.models import TrdTradeSystem
+from cor.exception.app_exception import AppException
+from stocks.models import StkAct
 
 
 class TrdOrderState(CorState):
@@ -28,8 +27,12 @@ class TrdOrderState(CorState):
         if self.n_order is None:
             return False
         else:
-            return self.n_order >= 300
+            return self.n_order >= TrdOrderState.get_write_off_state_number()
 
+    @staticmethod
+    def get_write_off_state_number():
+        # Номер состояния, начиная с которого списываются ТМЦ со склада
+        return 300
 
 class TrdOrderStateHistory(CorStateHistory):
     """
@@ -54,31 +57,58 @@ class TrdOrderStateHistory(CorStateHistory):
             return None
 
 
-class TrdOrderStateLevel(models.Model):
+class TrdOrderPriorityLevel(models.Model):
+    """
+    Уровень приоритета заказа.
+    Позволяет настроить уровни приоритетов заказов
+    """
+    id_color = models.ForeignKey('cor.CorColor', on_delete=models.PROTECT, null=False, verbose_name="Цвет")
+
+    # чем выше число, тем более приоритетный уровнь
+    n_level = models.PositiveIntegerField(verbose_name="Уровень", blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Уровень приоритета заказа"
+        verbose_name_plural = "Уровени приоритета заказа"
+
+    def __str__(self):
+        if not self.id_color:
+            return str(self.id)
+        else:
+            return str(self.id_color)
+
+
+class TrdOrderStatePriorityLevel(models.Model):
     """
     Уровни состояний заказа.
     Для состояния заказа позволяет настроить при каком количестве дней
-    после оформления заказа, он начинает подсвечиваться определенным цветом.
+    после оформления заказа, он считается более приоритетным
     """
     id_order_state = models.ForeignKey('TrdOrderState', on_delete=models.CASCADE, null=False,
                                        verbose_name="Состояние заказа")
     id_trade_system = models.ForeignKey('TrdTradeSystem', on_delete=models.CASCADE, null=False,
                                         verbose_name="Торговая система")
-    id_color = models.ForeignKey('cor.CorColor', on_delete=models.PROTECT, null=False, verbose_name="Цвет")
+    id_level = models.ForeignKey('TrdOrderPriorityLevel', on_delete=models.PROTECT, null=False, verbose_name="Уровень")
     n_from = models.PositiveIntegerField(verbose_name="Дней от", blank=True, null=True)
     n_to = models.PositiveIntegerField(verbose_name="до", blank=True, null=True)
 
     class Meta:
         verbose_name = "Уровень состояния заказа"
         verbose_name_plural = "Уровни состояния заказа"
-        unique_together = [['id_order_state', 'id_trade_system', 'id_color']]
+        unique_together = [['id_order_state', 'id_trade_system', 'id_level']]
         ordering = ["id_trade_system", "id_order_state"]
 
     def __str__(self):
-        if not self.id_color:
+        if not self.id_level:
             return str(self.id)
         else:
-            return self.id_color.s_caption
+            return self.id_level.id_color.s_color
+
+    def get_color(self):
+        if self.id_level_id is not None:
+            if self.id_level.id_color_id is not None:
+                return self.id_level.id_color.s_color
+        return None
 
 
 class TrdOrder(models.Model):
@@ -239,7 +269,7 @@ class TrdOrder(models.Model):
             current_date = timezone.now().date()
             order_date = self.d_reg_date.date()
             diff = abs((current_date - order_date).days)
-            for level in TrdOrderStateLevel.objects.filter(id_order_state=self.id_state).filter(id_trade_system=self.id_trade_system):
+            for level in TrdOrderStatePriorityLevel.objects.filter(id_order_state=self.id_state).filter(id_trade_system=self.id_trade_system):
                 if (level.n_from is None or level.n_from <= diff) and (level.n_to is None or level.n_to >= diff):
                     return level
 

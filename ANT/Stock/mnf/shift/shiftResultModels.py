@@ -6,7 +6,7 @@ from goods.models import GdsGood
 from mnf.item.itemModels import MnfItemDet
 from django.utils import timezone
 
-from stock.app_exception import AppException
+from cor.exception.app_exception import AppException
 from stocks.models import StkAct, StkActDet
 
 
