@@ -17,11 +17,8 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import include
 from django.views.generic import RedirectView
-from django.conf import settings
-from django.conf.urls.static import static
 
-from stock import views
-from stock.trd import OrderReport
+from trd import OrderReport
 
 urlpatterns = [
     path('admin/', admin.site.urls),
