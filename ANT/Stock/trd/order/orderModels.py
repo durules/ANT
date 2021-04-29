@@ -34,6 +34,7 @@ class TrdOrderState(CorState):
         # Номер состояния, начиная с которого списываются ТМЦ со склада
         return 300
 
+
 class TrdOrderStateHistory(CorStateHistory):
     """
     История состояний заказа.
@@ -195,7 +196,7 @@ class TrdOrder(models.Model):
     def __insert(s_user):
         obj = TrdOrder()
         obj.set_d_create_date(timezone.now())
-        obj.set_d_reg_date(timezone.now().date())
+        obj.set_d_reg_date(timezone.now())
         obj.set_id_state(TrdOrderState.get_start_state().id, s_user)
         obj.save()
         return obj
@@ -267,7 +268,7 @@ class TrdOrder(models.Model):
             return None
         else:
             current_date = timezone.now().date()
-            order_date = self.d_reg_date.date()
+            order_date = localtime(self.d_reg_date).date()
             diff = abs((current_date - order_date).days)
             for level in TrdOrderStatePriorityLevel.objects.filter(id_order_state=self.id_state).filter(id_trade_system=self.id_trade_system):
                 if (level.n_from is None or level.n_from <= diff) and (level.n_to is None or level.n_to >= diff):
