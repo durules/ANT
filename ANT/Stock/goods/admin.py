@@ -9,6 +9,7 @@ class GdsGoodRemainsLevelInline(admin.TabularInline):
 
 class GdsGoodAdmin(admin.ModelAdmin):
     inlines = [GdsGoodRemainsLevelInline]
+    search_fields = ['sCaption']
 
 
 admin.site.register(GdsGood, GdsGoodAdmin)

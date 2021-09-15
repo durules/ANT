@@ -2,3 +2,5 @@
 venv
 db.sqlite3
 /__static__/
+/intg/ebay/ebay_sandbox.yaml
+/intg/ebay/ebay_token.txt

@@ -42,8 +42,8 @@ INSTALLED_APPS = [
     'stocks.apps.StocksConfig',
     'mnf.apps.MnfConfig',
     'trd.apps.TrdConfig',
-    'bootstrap4'
-
+    'bootstrap4',
+    'ebaysdk'
 ]
 
 MIDDLEWARE = [
