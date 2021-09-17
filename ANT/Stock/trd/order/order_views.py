@@ -1,5 +1,6 @@
 import datetime
 
+from dal import autocomplete
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import ModelForm, forms, \
@@ -238,6 +239,11 @@ det_form_set_class = inlineformset_factory(
             max_num=n_gds_count,
             extra=n_gds_count,
             formset=TrdOrderDetFormSet,
-            form=TrdOrderDetForm
+            form=TrdOrderDetForm,
+            widgets={
+                'id_good': autocomplete.ModelSelect2(
+                     url='gds-good-autocomplete',
+                )
+            }
         )
 

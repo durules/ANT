@@ -1,5 +1,6 @@
 import json
 
+from dal import autocomplete
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import ModelForm, formset_factory, BaseModelFormSet, modelformset_factory, HiddenInput, forms, \
@@ -119,5 +120,10 @@ det_form_set_class = inlineformset_factory(
             fields=['id_good', 'n_qty'],
             max_num=n_gds_count,
             extra=n_gds_count,
-            formset=StkActDetFormSet
+            formset=StkActDetFormSet,
+            widgets={
+                'id_good': autocomplete.ModelSelect2(
+                     url='gds-good-autocomplete',
+                )
+            }
         )

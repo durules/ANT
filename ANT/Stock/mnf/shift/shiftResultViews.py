@@ -1,5 +1,6 @@
 import json
 
+from dal import autocomplete
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import ModelForm, formset_factory, BaseModelFormSet, modelformset_factory, HiddenInput, forms, \
@@ -104,7 +105,12 @@ items_form_set_class = inlineformset_factory(
             fields=['id_item', 'n_qty'],
             max_num=n_item_count,
             extra=n_item_count,
-            formset=MnfShiftResultItemsFormSet
+            formset=MnfShiftResultItemsFormSet,
+            widgets={
+                'id_item': autocomplete.ModelSelect2(
+                     url='mnf-item-autocomplete',
+                )
+            }
         )
 
 
@@ -114,5 +120,10 @@ materials_form_set_class = inlineformset_factory(
             fields=['id_good', 'n_qty'],
             max_num=n_good_count,
             extra=n_good_count,
-            formset=MnfShiftResultMaterialsFormSet
+            formset=MnfShiftResultMaterialsFormSet,
+            widgets={
+                'id_good': autocomplete.ModelSelect2(
+                     url='gds-good-autocomplete',
+                )
+            }
         )

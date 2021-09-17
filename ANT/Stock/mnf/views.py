@@ -1,7 +1,9 @@
+from dal import autocomplete
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 from goods.models import GdsGood
+from mnf.item.itemModels import MnfItem
 from stocks.models import StkRemains
 
 
@@ -32,3 +34,17 @@ def index(request):
         'index.html',
         context={'remains_list': result_dict.values(), 'canvas_height': remains_count * 11},
     )
+
+
+class MnfItemAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        # Don't forget to filter out results depending on the visitor !
+        if not self.request.user.is_authenticated:
+            return MnfItem.objects.none()
+
+        qs = MnfItem.objects.all()
+
+        if self.q:
+            qs = qs.filter(sCaption__icontains=self.q)
+
+        return qs
