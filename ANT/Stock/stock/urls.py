@@ -32,4 +32,5 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('trd/', include('trd.urls')),
     path('order_report/', OrderReport.build_report, name='trd_order_report'),
+    path('rest/', include('stock.rest_urls')),
 ]
