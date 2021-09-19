@@ -14,7 +14,7 @@ def delete_account(request):
 
         relative_path = request.path
 
-        end_point = host + relative_path
+        end_point = request.scheme + '://' + host + relative_path
 
         # определяем параметр проверочного кода
         params = request.GET
