@@ -2,7 +2,6 @@ from django.db import models
 from django.utils import timezone
 
 
-
 class CorState(models.Model):
     """
     Состояния сущности.

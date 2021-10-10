@@ -129,7 +129,7 @@ class TrdOrder(models.Model):
     id_act_out = models.ForeignKey('stocks.StkAct', on_delete=models.PROTECT, null=True, blank=True,
                                    verbose_name="Расходная накладная")
 
-    s_reg_num = models.CharField("Номер", null=True, blank=True, max_length=256)
+    s_reg_num = models.CharField("Номер", null=True, blank=True, max_length=256, db_index=True)
     s_receiver = models.CharField("Получатель", null=True, blank=True, max_length=512)
     s_address = models.CharField("Адрес", null=True, blank=True, max_length=4000)
     s_track_num = models.CharField("Трек-номер", null=True, blank=True, max_length=256)
