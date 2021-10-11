@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import ModelForm, forms, \
     BaseInlineFormSet, inlineformset_factory, Textarea, DateInput, SelectDateWidget, TextInput, HiddenInput, CharField, \
-    DateField, IntegerField, Select
+    DateField, IntegerField, Select, BooleanField
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -44,17 +44,37 @@ class TrdOrderListView(LoginRequiredMixin, generic.ListView):
         else:
             return None
 
+    def __get_flt_s_reg_num(self):
+        str_value = self.request.GET.get('flt_s_reg_num')
+        if str_value is not None and not str_value == '':
+            return str_value
+        else:
+            return None
+
+    def __get_flt_b_not_active(self):
+        str_value = self.request.GET.get('flt_b_not_active')
+        if str_value == 'on':
+            return True
+        else:
+            return False
+
     def get_queryset(self):
         query_set = TrdOrder.objects
         d_date_from = self.__get_flt_d_date_from()
         d_date_to = self.__get_flt_d_date_to()
         id_trade_system = self.__get_flt_id_trade_system()
+        s_reg_num = self.__get_flt_s_reg_num()
+        b_not_active = self.__get_flt_b_not_active()
         if d_date_from is not None:
             query_set = query_set.filter(d_reg_date__gte=d_date_from)
         if d_date_to is not None:
             query_set = query_set.filter(d_reg_date__lte=d_date_to)
         if id_trade_system is not None:
             query_set = query_set.filter(id_trade_system_id=id_trade_system)
+        if s_reg_num is not None:
+            query_set = query_set.filter(s_reg_num=s_reg_num)
+        if not b_not_active:
+            query_set = query_set.filter(id_state__n_order__lt=TrdOrderState.get_is_finished_state_number())
         return query_set.order_by("-d_reg_date")
 
     def get_context_data(self, **kwargs):
@@ -65,14 +85,18 @@ class TrdOrderListView(LoginRequiredMixin, generic.ListView):
         d_date_from = self.__get_flt_d_date_from()
         d_date_to = self.__get_flt_d_date_to()
         id_trade_system = self.__get_flt_id_trade_system()
+        s_reg_num = self.__get_flt_s_reg_num()
+        b_not_active = self.__get_flt_b_not_active()
 
-        context['has_filter'] = d_date_from is not None or d_date_to is not None or id_trade_system is not None
+        context['has_filter'] = d_date_from or d_date_to or id_trade_system or s_reg_num or b_not_active
 
         context['filter_form'] = TrdOrderListFilterForm(
             initial={
                 'flt_d_date_from': d_date_from,
                 'flt_d_date_to': d_date_to,
-                'flt_id_trade_system': id_trade_system
+                'flt_id_trade_system': id_trade_system,
+                'flt_s_reg_num': s_reg_num,
+                'flt_b_not_active': b_not_active
             }
         )
 
@@ -82,6 +106,8 @@ class TrdOrderListView(LoginRequiredMixin, generic.ListView):
 class TrdOrderListFilterForm(forms.Form):
     flt_d_date_from = DateField(widget=DateInput(), label="Дата с", required=False)
     flt_d_date_to = DateField(widget=DateInput(), label="по", required=False)
+    flt_s_reg_num = DateField(widget=DateInput(), label="Номер", required=False)
+    flt_b_not_active = BooleanField(label="Отображать неактивные", required=False)
 
     trade_system_choices = [
         (None, '-------')

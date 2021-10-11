@@ -14,7 +14,7 @@
                 {% endfor %}
             </div>
             <a class="btn btn-outline-info" href="{% url "trd_order_report" %}" role="button">Отчет по заказам</a>
-
+            <a class="btn btn-outline-info" href="{% url "run_order_integration" %}" role="button">Загрузить заказы</a>
         </div>
     </div>
 
@@ -36,8 +36,16 @@
                                 <div class="col-sm-3">
                                 {% bootstrap_field filter_form.flt_d_date_to size='small' %}
                                 </div>
-                                <div class="col-sm-6">
+                                <div class="col-sm-3">
+                                {% bootstrap_field filter_form.flt_s_reg_num size='small' %}
+                                </div>
+                                <div class="col-sm-3">
                                 {% bootstrap_field filter_form.flt_id_trade_system size='small' %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                {% bootstrap_field filter_form.flt_b_not_active size='small' %}
                                 </div>
                             </div>
                         </div>

@@ -34,6 +34,18 @@ class TrdOrderState(CorState):
         # Номер состояния, начиная с которого списываются ТМЦ со склада
         return 300
 
+    @staticmethod
+    def get_is_finished_state_number():
+        # Номер состояния, начиная с которого заказ считается завершенным
+        return 500
+
+    def is_finished(self):
+        # признак, что в этом состоянии заказ считаются завершенным
+        if self.n_order is None:
+            return False
+        else:
+            return self.n_order >= TrdOrderState.get_is_finished_state_number()
+
 
 class TrdOrderStateHistory(CorStateHistory):
     """
@@ -165,6 +177,21 @@ class TrdOrder(models.Model):
 
     def set_d_reg_date(self, value: timezone):
         self.d_reg_date = value
+
+    def set_s_reg_num(self, value):
+        self.s_reg_num = value
+
+    def set_s_receiver(self, value):
+        self.s_receiver = value
+
+    def set_s_address(self, value):
+        self.s_address = value
+
+    def set_s_track_num(self, value):
+        self.s_track_num = value
+
+    def set_id_delivery_service(self, value):
+        self.id_delivery_service = value
 
     def set_id_state(self, value: float, s_user):
         old_id_state = None

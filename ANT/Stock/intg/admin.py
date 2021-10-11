@@ -26,6 +26,7 @@ class DeliverySystemMappingAdmin(admin.ModelAdmin):
 
 class IntgCircuitRunTimeDataInline(admin.TabularInline):
     model = IntgCircuitRunTimeData
+    max_num = 1
 
 
 @admin.register(IntgCircuit)

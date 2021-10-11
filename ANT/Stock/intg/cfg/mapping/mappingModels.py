@@ -1,18 +1,28 @@
 from django.db import models
-from django.utils import timezone
 
 
 class GoodMapping(models.Model):
     """
     Меппинг товаров.
     """
-    id_circuit = models.ForeignKey('intg.IntgCircuit', on_delete=models.PROTECT, verbose_name = "Контур")
+    id_circuit = models.ForeignKey('IntgCircuit', on_delete=models.PROTECT, verbose_name = "Контур")
     s_external_id = models.CharField("Идентификатор во внешней системе", null=False, max_length=256)
 
     class Meta:
         verbose_name = "Сопоставление товаров"
         verbose_name_plural = "Сопоставления товаров"
 
+    @staticmethod
+    def get_by_circuit(circuit):
+        """Получение меппинга по контуру.
+        Возвращает словарь ИД внешней системы: (ТМЦ, Количетство)"""
+        mapping_goods_dict = {}
+        for goodMapping in GoodMapping.objects.filter(id_circuit=circuit):
+            mapping_goods_dict[goodMapping.s_external_id] = []
+            for goodMappingDet in GoodMappingDet.objects.filter(id_good_mapping=goodMapping):
+                mapping_goods_dict[goodMapping.s_external_id].append((goodMappingDet.id_good, goodMappingDet.n_qty))
+
+        return mapping_goods_dict
 
 
 class GoodMappingDet(models.Model):
@@ -23,7 +33,7 @@ class GoodMappingDet(models.Model):
     # ТМЦ
     id_good = models.ForeignKey('goods.GdsGood', on_delete=models.PROTECT, null=False, verbose_name="Тмц")
     # Количество
-    n_qty = models.BigIntegerField("Количество")
+    n_qty = models.BigIntegerField("Количество", default=1)
 
     class Meta:
         verbose_name = "Позиция меппинга товаров"
@@ -42,5 +52,15 @@ class DeliverySystemMapping(models.Model):
     class Meta:
         verbose_name = "Сопоставление службы доставки"
         verbose_name_plural = "Сопоставления службы доставки"
+
+    @staticmethod
+    def get_by_circuit(circuit):
+        """Получение меппинга по контуру.
+        Возвращает словарь ИД внешней системы: служба доставки"""
+        mapping_dict = {}
+        for mapping in DeliverySystemMapping.objects.filter(id_circuit=circuit):
+            mapping_dict[mapping.s_external_id] = mapping.id_delivery_service
+
+        return mapping_dict
 
 

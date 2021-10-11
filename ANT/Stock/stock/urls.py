@@ -18,8 +18,6 @@ from django.urls import path
 from django.urls import include
 from django.views.generic import RedirectView
 
-from trd import OrderReport
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('goods/', include('goods.urls')),
@@ -31,6 +29,5 @@ urlpatterns = [
     path('stock/', RedirectView.as_view(url='/mnf/', permanent=True)),
     path('accounts/', include('django.contrib.auth.urls')),
     path('trd/', include('trd.urls')),
-    path('order_report/', OrderReport.build_report, name='trd_order_report'),
     path('rest/', include('stock.rest_urls')),
 ]

@@ -27,6 +27,7 @@ class IntgCircuit(models.Model):
 class IntgCircuitRunTimeData(models.Model):
     """
     Данные интеграции.
+    Свзяь с контуром 1 к 1
     """
 
     id_circuit = models.ForeignKey('intg.IntgCircuit', on_delete=models.CASCADE, verbose_name = "Контур")
@@ -35,3 +36,19 @@ class IntgCircuitRunTimeData(models.Model):
     class Meta:
         verbose_name = "Данные интеграции"
         verbose_name_plural = "Данные интеграции"
+
+    @staticmethod
+    def get_by_circuit(circuit):
+        """Получение записи по контуру"""
+        return IntgCircuitRunTimeData.objects.filter(id_circuit=circuit).first()
+
+    @staticmethod
+    def register_by_circuit(circuit):
+        """Регистрация записи по контуру.
+        Если запись не найдена, то она создается"""
+        obj = IntgCircuitRunTimeData.get_by_circuit(circuit)
+        if not obj:
+            obj = IntgCircuitRunTimeData()
+            obj.id_circuit = circuit
+            obj.save()
+        return obj

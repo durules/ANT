@@ -114,6 +114,6 @@ def build_report(request):
 
     return render(
         request,
-        'stock/trd/trd_order_report.html',
+        'trd/order/trd_order_report.html',
         context={'row_list': row_list, 'good_req_dict': good_req_dict, 'mat_req_dict': mat_req_dict},
     )
