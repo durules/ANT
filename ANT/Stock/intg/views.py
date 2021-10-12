@@ -8,6 +8,7 @@ from django.urls import reverse
 from cor.exception.app_exception import AppException
 from intg.cfg.cfgModels import IntgCircuit
 from intg.ebay.ebayIntegrator import EbayIntegrator
+from trd.order.orderModels import TrdOrder
 
 
 @login_required
@@ -40,3 +41,27 @@ def run_order_integration(request):
         )
     else:
         return HttpResponseRedirect(reverse('trd_orders'))
+
+@login_required
+def run_order_integration_by_id(request, pk):
+    """Запуск интеграции по одному заказу"""
+    trd_order = TrdOrder.objects.get(pk=pk)
+
+    for circuit in IntgCircuit.objects.filter(id_trade_system=trd_order.id_trade_system):
+        integrator = None
+        if circuit.s_type == IntgCircuit.TYPE_EBAY:
+            integrator = EbayIntegrator()
+            integrator.run_by_single_order(trd_order.s_reg_num)
+        else:
+            raise AppException('Неизвестный тип контура: ' + circuit.s_type)
+
+        if integrator.has_errors():
+            # Переводим текст в html, чтобы норм отобразить
+            return render(
+                request,
+                'show_text.html',
+                context={'lines': integrator.get_report()},
+            )
+        else:
+            return HttpResponseRedirect(reverse('trd_order-detail', args=[str(trd_order.id)]))
+

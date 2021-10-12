@@ -62,9 +62,9 @@ class TestEbay(TestCase):
             {
                 #'CreateTimeFrom': '2021-10-01T00:05:08.100Z',
                 #'CreateTimeTo': '2021-10-30T18:05:08.100Z',
-                'OrderIDArray': {'OrderID': ['12-07666-71910', '24-07686-82933', '22-07703-49186']},
+                'OrderIDArray': {'OrderID': ['26-07500-81214']},
                 'OrderRole': 'Seller',
-                #'OrderStatus': 'Active'
+                'OrderStatus': 'Completed'
             }
         )
         time = response.dict()['Timestamp']
@@ -75,7 +75,7 @@ class TestEbay(TestCase):
         #ShippedTime: 2021-10-08T07:24:02.000Z - dostavlen
 
         for order in order_array:
-            # self.print_order(order)
+            self.print_order(order)
 
             # ИД заказа
             order_id = order.get('OrderID')

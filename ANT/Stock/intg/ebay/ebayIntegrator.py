@@ -2,7 +2,7 @@ from django.utils import dateparse
 
 from cor.exception.app_exception import AppException
 from intg.cfg.mapping.mappingModels import GoodMapping, DeliverySystemMapping
-from intg.inetgratorAbs import IntegratorAbs
+from intg.inetgratorAbs import IntegratorAbs, ObjectInfo
 from ebaysdk.trading import Connection as Trading
 import json
 
@@ -75,9 +75,11 @@ class EbayIntegrator(IntegratorAbs):
         # Дата отправки
         shipped_time = order.get('ShippedTime')
         # Дата доставки
-        actual_delivery_time = self._get_delivery_time_from_response_order(order)
+        actual_delivery_time = None
         # Дата создания
         created_time = order.get('CreatedTime')
+        # Служба доставки
+        shipping_service_name = None
         # Получатель
         shipping_address_name = None
         # Адрес
@@ -86,6 +88,14 @@ class EbayIntegrator(IntegratorAbs):
         shipment_tracking_number_set = set()
         # ПРоданные позиции
         selled_sku_dict = {}
+
+        # Получение информации о доставке
+        shipping_service_selected = order.get('ShippingServiceSelected')
+        if shipping_service_selected:
+            shipping_service_name = shipping_service_selected.get('ShippingService')
+            shipping_package_info = shipping_service_selected.get('ShippingPackageInfo')
+            if shipping_package_info:
+                actual_delivery_time = shipping_package_info.get('ActualDeliveryTime')
 
         # Расчет адреса
         shipping_address = order.get('ShippingAddress')
@@ -149,12 +159,23 @@ class EbayIntegrator(IntegratorAbs):
         # установка данных
         # сначала откатим заказ, т.к. он мог уже внести данные в склад
         if trd_order.id_state.is_write_off_goods():
-            trd_order.set_id_state(TrdOrderState.get_start_state(), self.s_user)
+            trd_order.set_id_state(TrdOrderState.get_start_state().id, self.s_user)
 
         trd_order.set_d_reg_date(self.__str_to_date(created_time))
         trd_order.set_s_receiver(shipping_address_name)
         trd_order.set_s_address(shipping_address_address)
         trd_order.set_s_track_num(', '.join(shipment_tracking_number_set))
+
+        trd_order.save()
+
+        # Служба доставки
+        if shipping_service_name:
+            delivery_service = self.mapping_delivery_service_dict.get(shipping_service_name)
+            if not delivery_service:
+                raise AppException('Для службы доставки '+ shipping_service_name + ' не настроено сопоставление')
+            trd_order.set_id_delivery_service(delivery_service)
+        else:
+            trd_order.set_id_delivery_service(None)
 
         trd_order.save()
 
@@ -273,11 +294,16 @@ class EbayIntegrator(IntegratorAbs):
                 'GetOrders',
                 {
                     'OrderRole': 'Seller',
-                    'NumberOfDays ': 30
+                    'NumberOfDays ': 30,
+                    'OrderStatus': 'Completed'
                 }
             )
 
-            order_array = self._get_order_list_from_response(response)
+            order_array = filter(
+                lambda _order: self._is_response_order_not_shipped(_order),
+                self._get_order_list_from_response(response)
+            )
+
             response_time_str = response.dict()['Timestamp']
             new_last_import_date = self.__str_to_date(response_time_str)
         else:
@@ -294,12 +320,10 @@ class EbayIntegrator(IntegratorAbs):
                     'CreateTimeFrom': last_import_date,
                     'CreateTimeTo': self.__date_to_str(create_to_time),
                     'OrderRole': 'Seller',
+                    'OrderStatus': 'Completed'
                 }
             )
-            order_array = filter(
-                lambda _order: self._is_response_order_not_finished(_order),
-                self._get_order_list_from_response(response)
-            )
+            order_array = self._get_order_list_from_response(response)
 
             new_last_import_date = create_to_time
 
@@ -320,19 +344,30 @@ class EbayIntegrator(IntegratorAbs):
         else:
             return []
 
-    def _is_response_order_not_finished(self, order):
-        """Проверка, что заказ, вернувшийся из  запроса является незавершенным"""
-        self._get_delivery_time_from_response_order(order)
+    def _is_response_order_not_shipped(self, order):
+        """Проверка, что заказ, вернувшийся из не является оправленным"""
+        order.get('ShippedTime')
 
-    def _get_delivery_time_from_response_order(self, order):
-        """Получение даты доставки из заказа"""
-        actual_delivery_time = None
+    def run_by_single_order(self, order_id):
+        """Запуск обменов по одному заказу"""
+        self.on_start_run()
 
-        shipping_service_selected = order.get('ShippingServiceSelected')
-        if shipping_service_selected:
-            shipping_package_info = shipping_service_selected.get('ShippingPackageInfo')
-            if shipping_package_info:
-                actual_delivery_time = shipping_package_info.get('ActualDeliveryTime')
+        api = Trading(domain='api.ebay.com',
+                      appid=self.app_id, devid=self.dev_id,
+                      certid=self.cert_id, token=self.token,
+                      config_file=None, timeout=300
+                      )
 
-        return actual_delivery_time
+        response = api.execute(
+            'GetOrders',
+            {
+                'OrderIDArray': {'OrderID': order_id},
+                'OrderRole': 'Seller',
+            }
+        )
+
+        response_order_list = self._get_order_list_from_response(response)
+        for response_order in response_order_list:
+            obj_info = ObjectInfo()
+            self.import_order(response_order, obj_info)
 

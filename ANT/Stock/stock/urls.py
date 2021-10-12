@@ -29,5 +29,6 @@ urlpatterns = [
     path('stock/', RedirectView.as_view(url='/mnf/', permanent=True)),
     path('accounts/', include('django.contrib.auth.urls')),
     path('trd/', include('trd.urls')),
+    path('intg/', include('intg.urls')),
     path('rest/', include('stock.rest_urls')),
 ]
