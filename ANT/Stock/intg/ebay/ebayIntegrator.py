@@ -188,7 +188,7 @@ class EbayIntegrator(IntegratorAbs):
             if not mapping_goods:
                 raise AppException('Для SKU '+ selled_sku + ' не настроено сопоставление')
 
-            for good, n_qty in mapping_goods:
+            for good, n_qty in mapping_goods[GoodMapping.good_mapping_key()]:
 
                 if good not in selled_goods_dict:
                     selled_goods_dict[good] = 0

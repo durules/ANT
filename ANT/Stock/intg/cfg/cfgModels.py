@@ -8,8 +8,9 @@ class IntgCircuit(models.Model):
     """
 
     TYPE_EBAY = "Ebay"
+    TYPE_Wix = "Wix"
 
-    s_type_choices = [(TYPE_EBAY, "Ebay")]
+    s_type_choices = [(TYPE_EBAY, "Ebay"), (TYPE_Wix, "Wix")]
 
     s_caption = models.CharField("Наименование", null=False, max_length=256)
     id_trade_system = models.ForeignKey('trd.TrdTradeSystem', on_delete=models.PROTECT, verbose_name = "Торговая система")

@@ -8,6 +8,7 @@ from django.urls import reverse
 from cor.exception.app_exception import AppException
 from intg.cfg.cfgModels import IntgCircuit
 from intg.ebay.ebayIntegrator import EbayIntegrator
+from intg.wix.wixIntegrator import WixIntegrator
 from trd.order.orderModels import TrdOrder
 
 
@@ -21,6 +22,8 @@ def run_order_integration(request):
         integrator = None
         if circuit.s_type == IntgCircuit.TYPE_EBAY:
             integrator = EbayIntegrator()
+        elif circuit.s_type == IntgCircuit.TYPE_Wix:
+            integrator = WixIntegrator()
         else:
             raise AppException('Неизвестный тип контура: ' + circuit.s_type)
 

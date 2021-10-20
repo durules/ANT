@@ -5,3 +5,4 @@ db.sqlite3
 /intg/ebay/ebay_sandbox.yaml
 /intg/ebay/ebay_token.txt
 /intg/ebay/ebay_token_sandbox.txt
+/intg/wix/wix_token.txt
