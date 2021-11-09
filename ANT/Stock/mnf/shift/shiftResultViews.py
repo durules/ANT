@@ -17,8 +17,8 @@ from mnf.item.itemModels import MnfItem
 from mnf.shift.shiftResultModels import MnfShiftResult, MnfShiftResultItems, MnfShiftResultMaterials
 from stocks.models import StkAct, StkActDet
 
-n_item_count = MnfItem.objects.count()
-n_good_count = GdsGood.objects.count()
+n_item_count = 30
+n_good_count = 30
 
 
 class MnfShiftResultListView(LoginRequiredMixin, generic.ListView):
