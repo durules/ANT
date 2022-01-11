@@ -15,7 +15,7 @@ from django.db import models
 from goods.models import GdsGood
 from stocks.models import StkAct, StkActDet
 
-n_gds_count = GdsGood.objects.count()
+n_gds_count = 30
 
 
 class StkActListView(LoginRequiredMixin, generic.ListView):

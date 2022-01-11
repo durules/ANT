@@ -15,7 +15,7 @@ from goods.models import GdsGood
 from trd.models import TrdTradeSystem
 from trd.order.orderModels import TrdOrder, TrdOrderDet, TrdOrderStateHistory, TrdOrderState
 
-n_gds_count = GdsGood.objects.count()
+n_gds_count = 30
 
 
 class TrdOrderListView(LoginRequiredMixin, generic.ListView):

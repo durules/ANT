@@ -18,41 +18,43 @@
                     {% endif %}
 
                     <div class="card-header">Позиции</div>
-                        <table class="table table-sm">
-                            {% if det_form_set.non_form_errors %}
-                                {% for error in det_form_set.non_form_errors %}
-                                <p class="card-text text-danger">{{ error }}</p>
-                                {% endfor %}
-                            {% endif %}
-                            {{ det_form_set.management_form }}
-
-                            <thead>
-                                <tr>
-                                    <th>Тмц</th>
-                                    <th>Кол-во</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {% for det_form in det_form_set %}
-                                <tr class="grid-row">
-                                {% if form.instance.s_state == "300" %}
-                                    {% if det_form.instance.id_good %}
-                                        <td>{{ det_form.instance.id_good }}</td>
-                                        <td>{{ det_form.instance.n_qty }}</td>
-                                    {% endif %}
-                                {% else %}
-                                    {% for det_field in det_form %}
-                                        {% if not det_field.is_hidden %}
-                                            <td>{% bootstrap_field det_field show_label=False%}</td>
-                                        {% else %}
-                                            {{ det_field }}
-                                        {% endif %}
+                        <div class="table-wrapper-scroll-y my-custom-scrollbar">
+                            <table class="table table-sm">
+                                {% if det_form_set.non_form_errors %}
+                                    {% for error in det_form_set.non_form_errors %}
+                                    <p class="card-text text-danger">{{ error }}</p>
                                     {% endfor %}
                                 {% endif %}
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
+                                {{ det_form_set.management_form }}
+
+                                <thead>
+                                    <tr>
+                                        <th>Тмц</th>
+                                        <th>Кол-во</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for det_form in det_form_set %}
+                                    <tr class="grid-row">
+                                    {% if form.instance.s_state == "300" %}
+                                        {% if det_form.instance.id_good %}
+                                            <td>{{ det_form.instance.id_good }}</td>
+                                            <td>{{ det_form.instance.n_qty }}</td>
+                                        {% endif %}
+                                    {% else %}
+                                        {% for det_field in det_form %}
+                                            {% if not det_field.is_hidden %}
+                                                <td>{% bootstrap_field det_field show_label=False%}</td>
+                                            {% else %}
+                                                {{ det_field }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
 
                     {% if form.instance.s_state == "100" %}
                         {% buttons submit='Сохранить' %}{% endbuttons %}

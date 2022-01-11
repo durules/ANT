@@ -1,8 +1,10 @@
 import hashlib
 
 from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
+@csrf_exempt
 def delete_account(request):
     if request.method == 'POST':
         return HttpResponse()
